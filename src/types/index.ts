@@ -79,3 +79,63 @@ export interface MonthlyReport {
   completedRequests: number;
   totalWeight: number;
 }
+
+export type RequestStatus = 'pending' | 'accepted' | 'on_the_way' | 'completed' | 'cancelled' | 'rescheduled';
+
+export interface CollectionRequest {
+  id: string;
+  userId: string;
+  companyId: string | null;
+  status: RequestStatus;
+  materialType: string;
+  quantityKg: number;
+  observations?: string;
+  photos: string[];
+  desiredDate: string;
+  desiredTime: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  realWeight?: number;
+  completedAt?: string;
+  createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+    phone?: string;
+  };
+  company?: {
+    id: string;
+    name: string;
+    rating: number;
+  };
+}
+
+export interface Review {
+  id: string;
+  userId: string;
+  companyId: string;
+  requestId: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface CompanyDashboardData {
+  company: {
+    id: string;
+    name: string;
+    rating: number;
+  };
+  stats: {
+    totalRequests: number;
+    pendingRequests: number;
+    completedToday: number;
+    totalCollected: number;
+  };
+  recentReviews: Review[];
+}
