@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import routes from './routes';
+import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
 
@@ -16,5 +18,9 @@ app.use(express.json());
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.use('/api', routes);
+
+app.use(errorHandler);
 
 export default app;
