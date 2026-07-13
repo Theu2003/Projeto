@@ -203,6 +203,41 @@ test('server/src/server.ts exists (HTTP + Socket.IO)', () => {
   assert(fileExists('server/src/server.ts'), 'server/src/server.ts exists');
 });
 
+// ─── Workspace Linking ───────────────────────────────────────────────
+
+test('workspace server package is linked in node_modules', () => {
+  const linkedPath = path.join(ROOT, 'node_modules', '@ecocoleta', 'server');
+  assert(
+    fs.existsSync(linkedPath),
+    'node_modules/@ecocoleta/server directory exists (workspace linked)'
+  );
+});
+
+test('workspace server can be resolved via require.resolve', () => {
+  try {
+    const resolved = require.resolve('@ecocoleta/server', { paths: [ROOT] });
+    assert(resolved.length > 0, `require.resolve("@ecocoleta/server") resolved to "${resolved}"`);
+  } catch (e) {
+    assert(false, `require.resolve("@ecocoleta/server") failed: ${e.message}`);
+  }
+});
+
+test('root tsconfig excludes server directory', () => {
+  const tsconfig = readJson('tsconfig.json');
+  assert(
+    tsconfig.exclude && tsconfig.exclude.includes('server'),
+    'root tsconfig.json excludes "server" directory'
+  );
+});
+
+test('server tsconfig excludes test files', () => {
+  const tsconfig = readJson('server/tsconfig.json');
+  assert(
+    tsconfig.exclude && tsconfig.exclude.some(e => e.includes('test')),
+    'server tsconfig.json excludes test files'
+  );
+});
+
 // ─── Summary ─────────────────────────────────────────────────────────
 
 console.log('\n' + '═'.repeat(50));
