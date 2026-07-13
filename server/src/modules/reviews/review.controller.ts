@@ -12,7 +12,7 @@ export async function createReview(req: Request, res: Response, next: NextFuncti
 
 export async function listReviewsByCompany(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await reviewService.listReviewsByCompany(req.params.companyId);
+    const result = await reviewService.listReviewsByCompany(String(req.params.companyId));
     res.json(result);
   } catch (error) {
     next(error);

@@ -15,13 +15,11 @@ interface AuthResult {
 }
 
 function generateTokens(userId: string, role: string) {
-  const token = jwt.sign({ userId, role }, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn,
-  });
-  
-  const refreshToken = jwt.sign({ userId, role, type: 'refresh' }, config.jwtSecret, {
-    expiresIn: config.refreshTokenExpiresIn,
-  });
+  const signOptions: jwt.SignOptions = { expiresIn: 60 * 60 * 24 * 7 };
+  const token = jwt.sign({ userId, role }, config.jwtSecret, signOptions);
+
+  const refreshOptions: jwt.SignOptions = { expiresIn: 60 * 60 * 24 * 30 };
+  const refreshToken = jwt.sign({ userId, role, type: 'refresh' }, config.jwtSecret, refreshOptions);
 
   return { token, refreshToken };
 }

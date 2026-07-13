@@ -1,5 +1,10 @@
 # Especificação do EcoColeta
 
+> [!NOTE]
+> This document may not reflect the current implementation.
+> See the final report for up-to-date state:
+> [Final Report](../reports/ecocoleta.md)
+
 ## Visão Geral
 
 EcoColeta é um aplicativo desktop que conecta moradores com empresas de coleta seletiva para reciclagem. O sistema permite que moradores solicitem coletas de materiais recicláveis, que empresas aceitem e realizem as coletas, e que administradores gerenciem o整个 plataforma.

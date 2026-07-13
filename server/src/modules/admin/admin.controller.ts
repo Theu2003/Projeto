@@ -21,7 +21,7 @@ export async function listCompanies(_req: Request, res: Response, next: NextFunc
 
 export async function approveCompany(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await adminService.approveCompany(req.params.id);
+    const result = await adminService.approveCompany(String(req.params.id));
     res.json(result);
   } catch (error) {
     next(error);
@@ -30,7 +30,7 @@ export async function approveCompany(req: Request, res: Response, next: NextFunc
 
 export async function blockUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await adminService.blockUser(req.params.id);
+    const result = await adminService.blockUser(String(req.params.id));
     res.json(result);
   } catch (error) {
     next(error);
@@ -39,7 +39,7 @@ export async function blockUser(req: Request, res: Response, next: NextFunction)
 
 export async function blockCompany(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await adminService.blockCompany(req.params.id);
+    const result = await adminService.blockCompany(String(req.params.id));
     res.json(result);
   } catch (error) {
     next(error);
