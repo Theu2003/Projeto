@@ -26,11 +26,8 @@ export function DataTable<T extends { id: string }>({
   className,
   caption,
 }: DataTableProps<T>) {
-  if (data.length === 0) {
-    if (emptyMessage) {
-      return <p className="text-gray-500 dark:text-gray-400 text-center py-8">{emptyMessage}</p>;
-    }
-    return null;
+  if (data.length === 0 && emptyMessage) {
+    return <p className="text-gray-500 dark:text-gray-400 text-center py-8">{emptyMessage}</p>;
   }
 
   return (
