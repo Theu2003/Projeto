@@ -163,6 +163,47 @@ describe('Request Socket Integration', () => {
     });
   });
 
+  describe('companies broadcast room', () => {
+    it('should deliver request:new to all companies via broadcast room', async () => {
+      await setupServer();
+
+      const companyToken = generateToken(testCompanyId, 'company');
+      clientSocket = await connectClient(companyToken);
+
+      const received = new Promise<any>((resolve) => {
+        clientSocket.on('request:new', resolve);
+      });
+
+      // Emit to broadcast 'companies' room (as request.service does)
+      emitToRoom('companies', 'request:new', {
+        id: 'req-broadcast',
+        userId: testUserId,
+        materialType: 'plastic',
+        quantityKg: 3,
+        status: 'pending',
+      });
+
+      const data = await received;
+      expect(data.id).toBe('req-broadcast');
+      expect(data.materialType).toBe('plastic');
+    });
+
+    it('should not deliver request:new to residents via broadcast room', async () => {
+      await setupServer();
+
+      const residentToken = generateToken(testUserId, 'resident');
+      clientSocket = await connectClient(residentToken);
+
+      let received = false;
+      clientSocket.on('request:new', () => { received = true; });
+
+      emitToRoom('companies', 'request:new', { id: 'req-broadcast-2' });
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(received).toBe(false);
+    });
+  });
+
   describe('emitToUser helper', () => {
     it('should deliver events to correct user', async () => {
       await setupServer();

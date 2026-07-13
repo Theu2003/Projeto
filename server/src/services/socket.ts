@@ -35,6 +35,7 @@ export function initializeSocket(socketServer: SocketIOServer): void {
 
     if (role === 'company') {
       socket.join(`company:${userId}`);
+      socket.join('companies');
     } else {
       socket.join(`user:${userId}`);
     }
