@@ -66,4 +66,9 @@ describe('Header', () => {
     renderHeader();
     expect(screen.getByLabelText(/notificações/i)).toBeInTheDocument();
   });
+
+  it('has a logout button', () => {
+    renderHeader();
+    expect(screen.getByLabelText(/sair/i)).toBeInTheDocument();
+  });
 });

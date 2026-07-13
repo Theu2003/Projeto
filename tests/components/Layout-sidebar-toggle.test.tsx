@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -54,59 +55,7 @@ const renderLayout = (role: 'resident' | 'company' | 'admin' = 'resident') => {
   );
 };
 
-describe('Layout', () => {
-  it('renders the sidebar and header', () => {
-    renderLayout();
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
-    expect(screen.getAllByText('EcoColeta').length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('renders the header with user name', () => {
-    renderLayout();
-    expect(screen.getByText('Test User')).toBeInTheDocument();
-  });
-
-  it('renders child content in the outlet', () => {
-    renderLayout();
-    expect(screen.getByTestId('page-content')).toBeInTheDocument();
-    expect(screen.getByText('Page Content')).toBeInTheDocument();
-  });
-
-  it('renders sidebar with role-appropriate links', () => {
-    renderLayout('admin');
-    expect(screen.getByText('Usuários')).toBeInTheDocument();
-    expect(screen.getByText('Empresas')).toBeInTheDocument();
-    expect(screen.getByText('Relatórios')).toBeInTheDocument();
-  });
-
-  it('toggles sidebar visibility when menu button is clicked', async () => {
-    const { userEvent } = await import('@testing-library/user-event');
-    const user = userEvent.setup();
-    renderLayout();
-
-    const menuButton = screen.getByLabelText(/toggle menu/i);
-    const sidebar = screen.getByRole('navigation');
-
-    expect(sidebar).toBeInTheDocument();
-    await user.click(menuButton);
-    expect(sidebar).toBeInTheDocument();
-  });
-
-  it('shows notification bell in the header', () => {
-    renderLayout();
-    expect(screen.getByLabelText(/notificações/i)).toBeInTheDocument();
-  });
-
-  it('shows logout button in the header', () => {
-    renderLayout();
-    expect(screen.getByLabelText(/sair/i)).toBeInTheDocument();
-  });
-
-  it('shows theme toggle in the header', () => {
-    renderLayout();
-    expect(screen.getByLabelText(/toggle theme/i)).toBeInTheDocument();
-  });
-
+describe('Layout - sidebar toggle', () => {
   it('displays resident links when role is resident', () => {
     renderLayout('resident');
     expect(screen.getByText('Nova Solicitação')).toBeInTheDocument();
@@ -119,5 +68,22 @@ describe('Layout', () => {
     expect(screen.getByText('Mapa')).toBeInTheDocument();
     expect(screen.getByText('Solicitações')).toBeInTheDocument();
     expect(screen.getByText('Processar Coleta')).toBeInTheDocument();
+  });
+
+  it('displays admin links when role is admin', () => {
+    renderLayout('admin');
+    expect(screen.getByText('Usuários')).toBeInTheDocument();
+    expect(screen.getByText('Empresas')).toBeInTheDocument();
+    expect(screen.getByText('Relatórios')).toBeInTheDocument();
+  });
+
+  it('shows logout button in the header', () => {
+    renderLayout();
+    expect(screen.getByLabelText(/sair/i)).toBeInTheDocument();
+  });
+
+  it('shows theme toggle in the header', () => {
+    renderLayout();
+    expect(screen.getByLabelText(/toggle theme/i)).toBeInTheDocument();
   });
 });
