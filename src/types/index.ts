@@ -46,3 +46,22 @@ export interface RegisterRequest {
   phone?: string;
   cpf?: string;
 }
+
+export interface AdminStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalCompanies: number;
+  approvedCompanies: number;
+  totalRequests: number;
+  completedRequests: number;
+  pendingRequests: number;
+  totalPoints: number;
+}
+
+export interface MonthlyReport {
+  month: string;
+  newUsers: number;
+  newCompanies: number;
+  completedRequests: number;
+  totalWeight: number;
+}
