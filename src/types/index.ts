@@ -167,3 +167,14 @@ export interface CompanyDashboardData {
   };
   recentReviews: Review[];
 }
+
+export interface Notification {
+  id: string;
+  userId?: string;
+  companyId?: string;
+  type: string;
+  message: string;
+  read: boolean;
+  data?: Record<string, unknown>;
+  createdAt: string;
+}
