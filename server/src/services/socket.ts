@@ -55,6 +55,7 @@ export function getIO(): SocketIOServer {
 }
 
 export function emitToRoom(room: string, event: string, data: unknown): void {
+  if (!io) return;
   io.to(room).emit(event, data);
 }
 
