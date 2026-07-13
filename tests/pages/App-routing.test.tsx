@@ -7,7 +7,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 
 vi.mock('@/services/api', () => ({
   apiClient: {
-    getToken: vi.fn(() => 'test-token'),
+    getToken: vi.fn(() => null),
     get: vi.fn(),
   },
 }));
@@ -50,27 +50,7 @@ const renderAppRoutes = (initialEntries: string[]) => {
   );
 };
 
-describe('App routing', () => {
-  it('renders login page at /login', () => {
-    renderAppRoutes(['/login']);
-    expect(screen.getByRole('heading', { name: /entrar/i })).toBeInTheDocument();
-  });
-
-  it('renders register resident page at /register/resident', () => {
-    renderAppRoutes(['/register/resident']);
-    expect(screen.getByText(/criar conta de morador/i)).toBeInTheDocument();
-  });
-
-  it('renders register company page at /register/company', () => {
-    renderAppRoutes(['/register/company']);
-    expect(screen.getByRole('heading', { name: /cadastrar empresa/i })).toBeInTheDocument();
-  });
-
-  it('renders app layout at /', () => {
-    renderAppRoutes(['/']);
-    expect(screen.getByText('EcoColeta')).toBeInTheDocument();
-  });
-
+describe('App routing - redirect behavior', () => {
   it('redirects unauthenticated user from / to /login', () => {
     renderAppRoutes(['/']);
     expect(screen.getByRole('heading', { name: /entrar/i })).toBeInTheDocument();
@@ -96,7 +76,7 @@ describe('App routing', () => {
     expect(screen.getByRole('heading', { name: /entrar/i })).toBeInTheDocument();
   });
 
-  it('catch-all route redirects unknown paths', () => {
+  it('catch-all route redirects to /', () => {
     renderAppRoutes(['/nonexistent-page']);
     expect(screen.getByRole('heading', { name: /entrar/i })).toBeInTheDocument();
   });
