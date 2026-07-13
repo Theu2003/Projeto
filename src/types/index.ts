@@ -99,6 +99,11 @@ export interface CollectionRequest {
   realWeight?: number;
   completedAt?: string;
   createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+    phone?: string;
+  };
   company?: { id: string; name: string; rating: number };
   timeline?: TimelineEntry[];
 }
@@ -116,6 +121,10 @@ export interface Review {
   rating: number;
   comment?: string;
   createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface Material {
@@ -142,4 +151,19 @@ export interface CreateRequestPayload {
   address?: string;
   latitude?: number;
   longitude?: number;
+}
+
+export interface CompanyDashboardData {
+  company: {
+    id: string;
+    name: string;
+    rating: number;
+  };
+  stats: {
+    totalRequests: number;
+    pendingRequests: number;
+    completedToday: number;
+    totalCollected: number;
+  };
+  recentReviews: Review[];
 }
