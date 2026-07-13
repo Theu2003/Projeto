@@ -90,10 +90,18 @@ export async function rejectRequest(id: string, companyId: string) {
   if (!request) throw new AppError('Request not found', 404);
   if (request.status !== 'pending') throw new AppError('Request cannot be rejected', 400);
 
-  return prisma.collectionRequest.update({
+  const updated = await prisma.collectionRequest.update({
     where: { id },
-    data: { status: 'cancelled', companyId },
+    data: { status: 'pending', companyId: null },
   });
+
+  emitToUser(request.userId, 'request:status_changed', {
+    requestId: id,
+    status: 'pending',
+    rejectedBy: companyId,
+  });
+
+  return updated;
 }
 
 export async function onTheWay(id: string, companyId: string) {

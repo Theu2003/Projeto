@@ -8,8 +8,12 @@ const prisma = new PrismaClient();
 describe('Request Endpoints', () => {
   let residentToken: string;
   let residentId: string;
+  let secondResidentToken: string;
+  let secondResidentId: string;
   let companyToken: string;
   let companyId: string;
+  let secondCompanyToken: string;
+  let secondCompanyId: string;
 
   beforeAll(async () => {
     await prisma.collectionRequest.deleteMany();
@@ -32,6 +36,19 @@ describe('Request Endpoints', () => {
     residentToken = regRes.body.token;
     residentId = regRes.body.user.id;
 
+    // Create second resident
+    const regRes2 = await request(app)
+      .post('/api/auth/register/resident')
+      .send({
+        name: 'Second Resident',
+        cpf: '22222222222',
+        phone: '11988887778',
+        email: 'second-resident@test.com',
+        password: 'pass123',
+      });
+    secondResidentToken = regRes2.body.token;
+    secondResidentId = regRes2.body.user.id;
+
     // Create company
     const compRes = await request(app)
       .post('/api/auth/register/company')
@@ -46,9 +63,27 @@ describe('Request Endpoints', () => {
     companyToken = compRes.body.token;
     companyId = compRes.body.company.id;
 
-    // Approve company
+    // Create second company
+    const compRes2 = await request(app)
+      .post('/api/auth/register/company')
+      .send({
+        name: 'Second Company',
+        cnpj: '22222222000192',
+        responsible: 'Ana',
+        phone: '11988887778',
+        email: 'second-company@test.com',
+        password: 'pass123',
+      });
+    secondCompanyToken = compRes2.body.token;
+    secondCompanyId = compRes2.body.company.id;
+
+    // Approve both companies
     await prisma.company.update({
       where: { id: companyId },
+      data: { approved: true },
+    });
+    await prisma.company.update({
+      where: { id: secondCompanyId },
       data: { approved: true },
     });
   });
@@ -102,9 +137,99 @@ describe('Request Endpoints', () => {
     });
   });
 
+  describe('validation', () => {
+    it('rejects create request with missing materialType', async () => {
+      const res = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ quantityKg: 5 });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Validation error');
+    });
+
+    it('rejects create request with empty materialType', async () => {
+      const res = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: '', quantityKg: 5 });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects create request with negative quantityKg', async () => {
+      const res = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: -5 });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects create request with zero quantityKg', async () => {
+      const res = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 0 });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects complete request with negative realWeight', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'glass', quantityKg: 8 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      await request(app)
+        .put(`/api/requests/${reqId}/on-the-way`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/complete`)
+        .set('Authorization', `Bearer ${companyToken}`)
+        .send({ realWeight: -1 });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects reschedule with missing desiredDate', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'paper', quantityKg: 3 });
+
+      const res = await request(app)
+        .put(`/api/requests/${createRes.body.id}/reschedule`)
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ desiredTime: '14:00' });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects reschedule with missing desiredTime', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'paper', quantityKg: 3 });
+
+      const res = await request(app)
+        .put(`/api/requests/${createRes.body.id}/reschedule`)
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ desiredDate: '2026-10-15' });
+
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('status transitions', () => {
     it('full lifecycle: create → accept → on_the_way → complete', async () => {
-      // Create
       const createRes = await request(app)
         .post('/api/requests')
         .set('Authorization', `Bearer ${residentToken}`)
@@ -113,7 +238,6 @@ describe('Request Endpoints', () => {
       const reqId = createRes.body.id;
       expect(createRes.body.status).toBe('pending');
 
-      // Accept
       const acceptRes = await request(app)
         .put(`/api/requests/${reqId}/accept`)
         .set('Authorization', `Bearer ${companyToken}`);
@@ -121,7 +245,6 @@ describe('Request Endpoints', () => {
       expect(acceptRes.status).toBe(200);
       expect(acceptRes.body.status).toBe('accepted');
 
-      // On the way
       const onWayRes = await request(app)
         .put(`/api/requests/${reqId}/on-the-way`)
         .set('Authorization', `Bearer ${companyToken}`);
@@ -129,7 +252,6 @@ describe('Request Endpoints', () => {
       expect(onWayRes.status).toBe(200);
       expect(onWayRes.body.status).toBe('on_the_way');
 
-      // Complete
       const completeRes = await request(app)
         .put(`/api/requests/${reqId}/complete`)
         .set('Authorization', `Bearer ${companyToken}`)
@@ -170,6 +292,151 @@ describe('Request Endpoints', () => {
 
       expect(res.status).toBe(400);
     });
+
+    it('rejects on_the_way for a pending request (must accept first)', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 4 });
+
+      const res = await request(app)
+        .put(`/api/requests/${createRes.body.id}/on-the-way`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects completing an accepted request (must go on_the_way first)', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'glass', quantityKg: 6 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/complete`)
+        .set('Authorization', `Bearer ${companyToken}`)
+        .send({ realWeight: 5.5 });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects on_the_way from wrong company', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'paper', quantityKg: 2 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/on-the-way`)
+        .set('Authorization', `Bearer ${secondCompanyToken}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects completing from wrong company', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'metal', quantityKg: 3 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      await request(app)
+        .put(`/api/requests/${reqId}/on-the-way`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/complete`)
+        .set('Authorization', `Bearer ${secondCompanyToken}`)
+        .send({ realWeight: 2.5 });
+
+      expect(res.status).toBe(403);
+    });
+  });
+
+  describe('reject (company declines without claiming)', () => {
+    it('company rejects a pending request — status stays pending, companyId is null', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 10 });
+
+      const reqId = createRes.body.id;
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/reject`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('pending');
+      expect(res.body.companyId).toBeNull();
+    });
+
+    it('after rejection, another company can accept the request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'glass', quantityKg: 12 });
+
+      const reqId = createRes.body.id;
+
+      // First company rejects
+      await request(app)
+        .put(`/api/requests/${reqId}/reject`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      // Second company accepts
+      const acceptRes = await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${secondCompanyToken}`);
+
+      expect(acceptRes.status).toBe(200);
+      expect(acceptRes.body.status).toBe('accepted');
+      expect(acceptRes.body.companyId).toBe(secondCompanyId);
+    });
+
+    it('rejects rejecting an already accepted request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'metal', quantityKg: 4 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/reject`)
+        .set('Authorization', `Bearer ${secondCompanyToken}`);
+
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 404 when rejecting non-existent request', async () => {
+      const res = await request(app)
+        .put('/api/requests/non-existent-id/reject')
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      expect(res.status).toBe(404);
+    });
   });
 
   describe('cancel and reschedule', () => {
@@ -207,9 +474,134 @@ describe('Request Endpoints', () => {
       expect(res.body.desiredDate).toBe('2026-10-15');
       expect(res.body.desiredTime).toBe('14:00');
     });
+
+    it('rejects cancel of a completed request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'glass', quantityKg: 5 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      await request(app)
+        .put(`/api/requests/${reqId}/on-the-way`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      await request(app)
+        .put(`/api/requests/${reqId}/complete`)
+        .set('Authorization', `Bearer ${companyToken}`)
+        .send({ realWeight: 4.5 });
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/cancel`)
+        .set('Authorization', `Bearer ${residentToken}`);
+
+      expect(res.status).toBe(400);
+    });
+
+    it('resident cannot cancel another resident request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 1 });
+
+      const res = await request(app)
+        .put(`/api/requests/${createRes.body.id}/cancel`)
+        .set('Authorization', `Bearer ${secondResidentToken}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('company can cancel an accepted request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'metal', quantityKg: 7 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/cancel`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('cancelled');
+    });
+
+    it('company can reschedule an accepted request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({
+          materialType: 'paper',
+          quantityKg: 6,
+          desiredDate: '2026-11-01',
+          desiredTime: '08:00',
+        });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/reschedule`)
+        .set('Authorization', `Bearer ${companyToken}`)
+        .send({ desiredDate: '2026-11-10', desiredTime: '15:00' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('rescheduled');
+      expect(res.body.desiredDate).toBe('2026-11-10');
+      expect(res.body.desiredTime).toBe('15:00');
+    });
+
+    it('company cannot cancel request assigned to another company', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'glass', quantityKg: 3 });
+
+      const reqId = createRes.body.id;
+
+      await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/cancel`)
+        .set('Authorization', `Bearer ${secondCompanyToken}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 404 when rescheduling non-existent request', async () => {
+      const res = await request(app)
+        .put('/api/requests/non-existent-id/reschedule')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ desiredDate: '2026-12-01', desiredTime: '10:00' });
+
+      expect(res.status).toBe(404);
+    });
+
+    it('returns 404 when cancelling non-existent request', async () => {
+      const res = await request(app)
+        .put('/api/requests/non-existent-id/cancel')
+        .set('Authorization', `Bearer ${residentToken}`);
+
+      expect(res.status).toBe(404);
+    });
   });
 
-  describe('authorization', () => {
+  describe('list filtering', () => {
     it('returns 401 without token', async () => {
       const res = await request(app).get('/api/requests');
       expect(res.status).toBe(401);
@@ -240,6 +632,32 @@ describe('Request Endpoints', () => {
       const res = await request(app)
         .get('/api/requests')
         .set('Authorization', `Bearer ${companyToken}`);
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+    });
+
+    it('second resident only sees their own requests', async () => {
+      await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${secondResidentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 1 });
+
+      const res = await request(app)
+        .get('/api/requests')
+        .set('Authorization', `Bearer ${secondResidentToken}`);
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      res.body.forEach((r: any) => {
+        expect(r.userId).toBe(secondResidentId);
+      });
+    });
+
+    it('second company only sees their assigned requests', async () => {
+      const res = await request(app)
+        .get('/api/requests')
+        .set('Authorization', `Bearer ${secondCompanyToken}`);
 
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);

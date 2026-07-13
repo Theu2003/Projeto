@@ -177,7 +177,8 @@ describe('RequestService', () => {
 
       const result = await rejectRequest(created.id, companyId);
 
-      expect(result).toHaveProperty('status', 'cancelled');
+      expect(result).toHaveProperty('status', 'pending');
+      expect(result).toHaveProperty('companyId', null);
     });
   });
 
