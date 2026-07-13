@@ -11,7 +11,7 @@ function TestComponent() {
       <div data-testid="is-loading">{isLoading.toString()}</div>
       <div data-testid="user">{user ? JSON.stringify(user) : 'null'}</div>
       <div data-testid="error">{error || 'null'}</div>
-      <button onClick={() => login('test@example.com', 'password123')}>Login</button>
+      <button onClick={() => login('test@example.com', 'password123').catch(() => {})}>Login</button>
       <button onClick={logout}>Logout</button>
     </div>
   );
@@ -106,11 +106,7 @@ describe('AuthContext', () => {
       );
 
       await act(async () => {
-        try {
-          screen.getByText('Login').click();
-        } catch {
-          // Button click may throw
-        }
+        screen.getByText('Login').click();
       });
 
       // Wait for state update
