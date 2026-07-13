@@ -206,6 +206,67 @@ describe('Auth Endpoints', () => {
   });
 
   describe('full auth flow', () => {
+    it('returns 403 when resident token is used on company route', async () => {
+      await request(app)
+        .post('/api/auth/register/resident')
+        .send({
+          name: 'Role Test Resident',
+          cpf: '11223344556',
+          phone: '11988887777',
+          email: 'role-test-resident@test.com',
+          password: 'secret123',
+        });
+
+      const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'role-test-resident@test.com', password: 'secret123' });
+
+      const res = await request(app)
+        .get('/api/companies/me')
+        .set('Authorization', `Bearer ${loginRes.body.token}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 403 when company token is used on resident route', async () => {
+      await request(app)
+        .post('/api/auth/register/company')
+        .send({
+          name: 'Role Test Company',
+          cnpj: '11223344556677',
+          responsible: 'Test',
+          phone: '11988887777',
+          email: 'role-test-company@test.com',
+          password: 'secret123',
+        });
+
+      const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'role-test-company@test.com', password: 'secret123' });
+
+      const res = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', `Bearer ${loginRes.body.token}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 403 with malformed Bearer token', async () => {
+      const res = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', 'Bearer invalid.jwt.token');
+
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 401 with empty Bearer value', async () => {
+      const res = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', 'Bearer ');
+
+      expect(res.status).toBe(401);
+    });
+
     it('register → login → use token → refresh', async () => {
       // Register
       const regRes = await request(app)
@@ -244,6 +305,113 @@ describe('Auth Endpoints', () => {
     it('returns 401 on protected route without token', async () => {
       const res = await request(app).get('/api/users/me');
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe('validation edge cases', () => {
+    it('rejects registration with missing name', async () => {
+      const res = await request(app)
+        .post('/api/auth/register/resident')
+        .send({
+          cpf: '88888888888',
+          phone: '11988887777',
+          email: 'no-name@test.com',
+          password: 'secret123',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Validation error');
+    });
+
+    it('rejects registration with missing CPF', async () => {
+      const res = await request(app)
+        .post('/api/auth/register/resident')
+        .send({
+          name: 'No CPF',
+          phone: '11988887777',
+          email: 'no-cpf@test.com',
+          password: 'secret123',
+        });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects registration with short phone number', async () => {
+      const res = await request(app)
+        .post('/api/auth/register/resident')
+        .send({
+          name: 'Short Phone',
+          cpf: '99999999999',
+          phone: '12345',
+          email: 'short-phone@test.com',
+          password: 'secret123',
+        });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects login with missing email', async () => {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ password: 'whatever' });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects login with empty body', async () => {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({});
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects refresh token with a regular access token', async () => {
+      const registerRes = await request(app)
+        .post('/api/auth/register/resident')
+        .send({
+          name: 'Access Token Test',
+          cpf: '10101010101',
+          phone: '11988887777',
+          email: 'access-token@test.com',
+          password: 'secret123',
+        });
+
+      // Try to use the access token (not refresh token) for refresh
+      const res = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: registerRes.body.token });
+
+      expect(res.status).toBe(401);
+    });
+
+    it('rejects company registration with missing CNPJ', async () => {
+      const res = await request(app)
+        .post('/api/auth/register/company')
+        .send({
+          name: 'No CNPJ',
+          responsible: 'Ana',
+          phone: '11988887777',
+          email: 'no-cnpj@test.com',
+          password: 'secret123',
+        });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects company registration with wrong CNPJ length', async () => {
+      const res = await request(app)
+        .post('/api/auth/register/company')
+        .send({
+          name: 'Short CNPJ',
+          cnpj: '123',
+          responsible: 'Ana',
+          phone: '11988887777',
+          email: 'short-cnpj@test.com',
+          password: 'secret123',
+        });
+
+      expect(res.status).toBe(400);
     });
   });
 });

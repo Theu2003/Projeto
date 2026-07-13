@@ -21,7 +21,7 @@ export async function listRequests(req: Request, res: Response, next: NextFuncti
 
 export async function getRequestById(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.getRequestById(req.params.id);
+    const result = await requestService.getRequestById(String(req.params.id));
     res.json(result);
   } catch (error) {
     next(error);
@@ -30,7 +30,7 @@ export async function getRequestById(req: Request, res: Response, next: NextFunc
 
 export async function acceptRequest(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.acceptRequest(req.params.id, req.user!.userId);
+    const result = await requestService.acceptRequest(String(req.params.id), req.user!.userId, req.user!.role);
     res.json(result);
   } catch (error) {
     next(error);
@@ -39,7 +39,7 @@ export async function acceptRequest(req: Request, res: Response, next: NextFunct
 
 export async function rejectRequest(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.rejectRequest(req.params.id, req.user!.userId);
+    const result = await requestService.rejectRequest(String(req.params.id), req.user!.userId);
     res.json(result);
   } catch (error) {
     next(error);
@@ -48,7 +48,7 @@ export async function rejectRequest(req: Request, res: Response, next: NextFunct
 
 export async function onTheWay(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.onTheWay(req.params.id, req.user!.userId);
+    const result = await requestService.onTheWay(String(req.params.id), req.user!.userId, req.user!.role);
     res.json(result);
   } catch (error) {
     next(error);
@@ -57,7 +57,7 @@ export async function onTheWay(req: Request, res: Response, next: NextFunction) 
 
 export async function completeRequest(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.completeRequest(req.params.id, req.user!.userId, req.body);
+    const result = await requestService.completeRequest(String(req.params.id), req.user!.userId, req.body, req.user!.role);
     res.json(result);
   } catch (error) {
     next(error);
@@ -66,7 +66,7 @@ export async function completeRequest(req: Request, res: Response, next: NextFun
 
 export async function cancelRequest(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.cancelRequest(req.params.id, req.user!.userId, req.user!.role);
+    const result = await requestService.cancelRequest(String(req.params.id), req.user!.userId, req.user!.role);
     res.json(result);
   } catch (error) {
     next(error);
@@ -76,7 +76,7 @@ export async function cancelRequest(req: Request, res: Response, next: NextFunct
 export async function rescheduleRequest(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await requestService.rescheduleRequest(
-      req.params.id,
+      String(req.params.id),
       req.user!.userId,
       req.user!.role,
       req.body

@@ -155,3 +155,56 @@ describe('StatusBadge', () => {
     expect(screen.getByText('Accepted').className).toContain('text-xs');
   });
 });
+
+describe('Button interaction', () => {
+  it('calls onClick when clicked', async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+
+    await user.click(screen.getByRole('button'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onClick when disabled', async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+    render(<Button disabled onClick={handleClick}>Disabled</Button>);
+
+    await user.click(screen.getByRole('button'));
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it('renders children text', () => {
+    render(<Button>Save Changes</Button>);
+    expect(screen.getByText('Save Changes')).toBeInTheDocument();
+  });
+});
+
+describe('Input interaction', () => {
+  it('displays placeholder text', () => {
+    render(<Input placeholder="Enter email" />);
+    expect(screen.getByPlaceholderText('Enter email')).toBeInTheDocument();
+  });
+
+  it('accepts text input', async () => {
+    const user = userEvent.setup();
+    render(<Input />);
+    const input = screen.getByRole('textbox');
+    await user.type(input, 'hello');
+    expect(input).toHaveValue('hello');
+  });
+
+  it('renders without label when label is not provided', () => {
+    const { container } = render(<Input />);
+    expect(container.querySelector('label')).toBeNull();
+  });
+
+  it('forwards onChange handler', async () => {
+    const user = userEvent.setup();
+    const handleChange = vi.fn();
+    render(<Input onChange={handleChange} />);
+    await user.type(screen.getByRole('textbox'), 'a');
+    expect(handleChange).toHaveBeenCalled();
+  });
+});

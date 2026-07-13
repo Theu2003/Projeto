@@ -370,6 +370,48 @@ describe('Request Endpoints', () => {
     });
   });
 
+  describe('access control', () => {
+    it('rejects resident trying to accept a request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 5 });
+
+      const res = await request(app)
+        .put(`/api/requests/${createRes.body.id}/accept`)
+        .set('Authorization', `Bearer ${residentToken}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects resident trying to complete a request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 5 });
+
+      const res = await request(app)
+        .put(`/api/requests/${createRes.body.id}/complete`)
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ realWeight: 4 });
+
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects resident trying to mark on_the_way', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'glass', quantityKg: 3 });
+
+      const res = await request(app)
+        .put(`/api/requests/${createRes.body.id}/on-the-way`)
+        .set('Authorization', `Bearer ${residentToken}`);
+
+      expect(res.status).toBe(403);
+    });
+  });
+
   describe('reject (company declines without claiming)', () => {
     it('company rejects a pending request — status stays pending, companyId is null', async () => {
       const createRes = await request(app)
@@ -598,6 +640,43 @@ describe('Request Endpoints', () => {
         .set('Authorization', `Bearer ${residentToken}`);
 
       expect(res.status).toBe(404);
+    });
+
+    it('rejects accepting a cancelled request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'plastic', quantityKg: 5 });
+
+      const reqId = createRes.body.id;
+
+      // Cancel it
+      await request(app)
+        .put(`/api/requests/${reqId}/cancel`)
+        .set('Authorization', `Bearer ${residentToken}`);
+
+      // Try to accept
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/accept`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects company cancelling an unassigned pending request', async () => {
+      const createRes = await request(app)
+        .post('/api/requests')
+        .set('Authorization', `Bearer ${residentToken}`)
+        .send({ materialType: 'glass', quantityKg: 4 });
+
+      const reqId = createRes.body.id;
+
+      // Company tries to cancel a pending request they haven't accepted
+      const res = await request(app)
+        .put(`/api/requests/${reqId}/cancel`)
+        .set('Authorization', `Bearer ${companyToken}`);
+
+      expect(res.status).toBe(403);
     });
   });
 

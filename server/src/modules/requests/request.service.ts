@@ -65,7 +65,8 @@ export async function getRequestById(id: string) {
   return request;
 }
 
-export async function acceptRequest(id: string, companyId: string) {
+export async function acceptRequest(id: string, companyId: string, role?: string) {
+  if (role && role !== 'company') throw new AppError('Only companies can accept requests', 403);
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
   if (!request) throw new AppError('Request not found', 404);
   if (request.status !== 'pending') throw new AppError('Request cannot be accepted', 400);
@@ -104,7 +105,8 @@ export async function rejectRequest(id: string, companyId: string) {
   return updated;
 }
 
-export async function onTheWay(id: string, companyId: string) {
+export async function onTheWay(id: string, companyId: string, role?: string) {
+  if (role && role !== 'company') throw new AppError('Only companies can update to on_the_way', 403);
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
   if (!request) throw new AppError('Request not found', 404);
   if (request.status !== 'accepted') throw new AppError('Request must be accepted first', 400);
@@ -125,7 +127,8 @@ export async function onTheWay(id: string, companyId: string) {
   return updated;
 }
 
-export async function completeRequest(id: string, companyId: string, data: CompleteRequestInput) {
+export async function completeRequest(id: string, companyId: string, data: CompleteRequestInput, role?: string) {
+  if (role && role !== 'company') throw new AppError('Only companies can complete requests', 403);
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
   if (!request) throw new AppError('Request not found', 404);
   if (request.status !== 'on_the_way') throw new AppError('Request must be on the way to complete', 400);
