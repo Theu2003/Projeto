@@ -1,0 +1,20 @@
+{
+  "name": "ecocoleta",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Desktop application connecting residents with recycling collection companies",
+  "workspaces": [
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "cd src && npm run dev",
+    "build": "npm run build --workspace=server",
+    "test": "npm run test --workspace=server",
+    "lint": "npm run lint --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
