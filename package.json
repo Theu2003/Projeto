@@ -3,18 +3,36 @@
   "version": "1.0.0",
   "private": true,
   "description": "Desktop application connecting residents with recycling collection companies",
+  "main": "electron/main.ts",
   "workspaces": [
     "server"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:electron\"",
     "dev:server": "npm run dev --workspace=server",
-    "dev:client": "cd src && npm run dev",
-    "build": "npm run build --workspace=server",
+    "dev:electron": "electron-vite dev",
+    "dev:client": "electron-vite dev --renderer-only",
+    "build": "electron-vite build && npm run build --workspace=server",
+    "preview": "electron-vite preview",
     "test": "npm run test --workspace=server",
+    "test:frontend": "node tests/frontend-setup.test.js",
     "lint": "npm run lint --workspace=server"
   },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
   "devDependencies": {
-    "concurrently": "^9.1.0"
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "electron": "^33.2.1",
+    "electron-vite": "^2.3.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
   }
 }
