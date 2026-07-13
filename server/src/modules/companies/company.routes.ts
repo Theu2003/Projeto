@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import * as companyController from './company.controller';
-import { authenticateToken } from '@/middleware/auth';
+import { authenticateToken, requireRole } from '@/middleware/auth';
 import { validate } from '@/middleware/validate';
 import { updateCompanySchema, nearbySearchSchema } from './company.validation';
 
@@ -17,6 +17,7 @@ router.get('/nearby', (req: Request, res: Response, next: NextFunction) => {
 }, companyController.findNearby);
 
 router.use(authenticateToken);
+router.use(requireRole('company'));
 
 router.get('/me', companyController.getProfile);
 router.put('/me', validate(updateCompanySchema), companyController.updateProfile);
