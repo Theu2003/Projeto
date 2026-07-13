@@ -1,14 +1,16 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { apiClient } from '@/services/api';
-import { User, AuthResponse, LoginRequest } from '@/types';
+import { User, Company, AuthResponse, LoginRequest, RegisterCompanyRequest } from '@/types';
 
 interface AuthContextType {
   user: User | null;
+  company: Company | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (data: LoginRequest) => Promise<void>;
+  registerCompany: (data: RegisterCompanyRequest) => Promise<void>;
   logout: () => void;
   clearError: () => void;
 }
@@ -25,10 +27,11 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isAuthenticated = user !== null;
+  const isAuthenticated = user !== null || company !== null;
 
   useEffect(() => {
     const token = apiClient.getToken();
@@ -70,9 +73,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/register/resident', data);
       apiClient.setToken(response.token);
-      setUser(response.user);
+      setUser(response.user as User);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function registerCompany(data: RegisterCompanyRequest) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/register/company', data);
+      apiClient.setToken(response.token);
+      setCompany(response.user as Company);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Company registration failed');
       throw err;
     } finally {
       setIsLoading(false);
@@ -92,11 +110,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        company,
         isAuthenticated,
         isLoading,
         error,
         login,
         register,
+        registerCompany,
         logout,
         clearError,
       }}

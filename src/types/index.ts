@@ -31,7 +31,7 @@ export interface Company {
 
 export interface AuthResponse {
   token: string;
-  user: User;
+  user: User | Company;
 }
 
 export interface LoginRequest {
@@ -45,4 +45,14 @@ export interface RegisterRequest {
   password: string;
   phone?: string;
   cpf?: string;
+}
+
+export interface RegisterCompanyRequest {
+  name: string;
+  email: string;
+  password: string;
+  cnpj: string;
+  responsible: string;
+  phone: string;
+  address: string;
 }
