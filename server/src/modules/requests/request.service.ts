@@ -1,9 +1,10 @@
 import { prisma } from '@/config/database';
 import { AppError } from '@/middleware/errorHandler';
 import { CreateRequestInput, RescheduleRequestInput, CompleteRequestInput } from './request.validation';
+import { emitToUser, emitToRoom } from '@/services/socket';
 
 export async function createRequest(userId: string, data: CreateRequestInput) {
-  return prisma.collectionRequest.create({
+  const request = await prisma.collectionRequest.create({
     data: {
       userId,
       materialType: data.materialType,
@@ -17,6 +18,23 @@ export async function createRequest(userId: string, data: CreateRequestInput) {
       address: data.address,
     },
   });
+
+  // Emit to all companies that a new request is available
+  emitToRoom('companies', 'request:new', {
+    id: request.id,
+    userId: request.userId,
+    materialType: request.materialType,
+    quantityKg: request.quantityKg,
+    address: request.address,
+    latitude: request.latitude,
+    longitude: request.longitude,
+    desiredDate: request.desiredDate,
+    desiredTime: request.desiredTime,
+    status: request.status,
+    createdAt: request.createdAt,
+  });
+
+  return request;
 }
 
 export async function listRequests(actorId: string, role: string) {
@@ -52,10 +70,19 @@ export async function acceptRequest(id: string, companyId: string) {
   if (!request) throw new AppError('Request not found', 404);
   if (request.status !== 'pending') throw new AppError('Request cannot be accepted', 400);
 
-  return prisma.collectionRequest.update({
+  const updated = await prisma.collectionRequest.update({
     where: { id },
     data: { status: 'accepted', companyId },
   });
+
+  // Notify the resident that their request was accepted
+  emitToUser(request.userId, 'request:status_changed', {
+    requestId: id,
+    status: 'accepted',
+    companyId,
+  });
+
+  return updated;
 }
 
 export async function rejectRequest(id: string, companyId: string) {
@@ -75,10 +102,19 @@ export async function onTheWay(id: string, companyId: string) {
   if (request.status !== 'accepted') throw new AppError('Request must be accepted first', 400);
   if (request.companyId !== companyId) throw new AppError('Not your request', 403);
 
-  return prisma.collectionRequest.update({
+  const updated = await prisma.collectionRequest.update({
     where: { id },
     data: { status: 'on_the_way' },
   });
+
+  // Notify the resident that the company is on the way
+  emitToUser(request.userId, 'request:status_changed', {
+    requestId: id,
+    status: 'on_the_way',
+    companyId,
+  });
+
+  return updated;
 }
 
 export async function completeRequest(id: string, companyId: string, data: CompleteRequestInput) {
@@ -87,7 +123,7 @@ export async function completeRequest(id: string, companyId: string, data: Compl
   if (request.status !== 'on_the_way') throw new AppError('Request must be on the way to complete', 400);
   if (request.companyId !== companyId) throw new AppError('Not your request', 403);
 
-  return prisma.collectionRequest.update({
+  const updated = await prisma.collectionRequest.update({
     where: { id },
     data: {
       status: 'completed',
@@ -95,6 +131,16 @@ export async function completeRequest(id: string, companyId: string, data: Compl
       completedAt: new Date(),
     },
   });
+
+  // Notify the resident that the collection is complete
+  emitToUser(request.userId, 'request:status_changed', {
+    requestId: id,
+    status: 'completed',
+    companyId,
+    realWeight: data.realWeight,
+  });
+
+  return updated;
 }
 
 export async function cancelRequest(id: string, actorId: string, role: string) {
@@ -109,10 +155,27 @@ export async function cancelRequest(id: string, actorId: string, role: string) {
     throw new AppError('Not your request', 403);
   }
 
-  return prisma.collectionRequest.update({
+  const updated = await prisma.collectionRequest.update({
     where: { id },
     data: { status: 'cancelled' },
   });
+
+  // Notify both parties about cancellation
+  emitToUser(request.userId, 'request:status_changed', {
+    requestId: id,
+    status: 'cancelled',
+    cancelledBy: role,
+  });
+
+  if (request.companyId) {
+    emitToRoom(`company:${request.companyId}`, 'request:status_changed', {
+      requestId: id,
+      status: 'cancelled',
+      cancelledBy: role,
+    });
+  }
+
+  return updated;
 }
 
 export async function rescheduleRequest(
@@ -131,7 +194,7 @@ export async function rescheduleRequest(
     throw new AppError('Not your request', 403);
   }
 
-  return prisma.collectionRequest.update({
+  const updated = await prisma.collectionRequest.update({
     where: { id },
     data: {
       status: 'rescheduled',
@@ -139,4 +202,23 @@ export async function rescheduleRequest(
       desiredTime: data.desiredTime,
     },
   });
+
+  // Notify both parties about reschedule
+  emitToUser(request.userId, 'request:status_changed', {
+    requestId: id,
+    status: 'rescheduled',
+    desiredDate: data.desiredDate,
+    desiredTime: data.desiredTime,
+  });
+
+  if (request.companyId) {
+    emitToRoom(`company:${request.companyId}`, 'request:status_changed', {
+      requestId: id,
+      status: 'rescheduled',
+      desiredDate: data.desiredDate,
+      desiredTime: data.desiredTime,
+    });
+  }
+
+  return updated;
 }
