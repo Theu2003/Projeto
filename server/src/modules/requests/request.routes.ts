@@ -4,6 +4,7 @@ import { authenticateToken, requireRole } from '@/middleware/auth';
 import { validate } from '@/middleware/validate';
 import {
   createRequestSchema,
+  updateRequestSchema,
   rescheduleRequestSchema,
   completeRequestSchema,
 } from './request.validation';
@@ -16,6 +17,9 @@ router.use(authenticateToken);
 router.post('/', validate(createRequestSchema), requestController.createRequest);
 router.get('/', requestController.listRequests);
 router.get('/:id', requestController.getRequestById);
+
+// Edição da solicitação (morador)
+router.put('/:id', validate(updateRequestSchema), requestController.updateRequest);
 
 // Ações da empresa
 router.put('/:id/accept', requestController.acceptRequest);

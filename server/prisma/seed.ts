@@ -31,11 +31,7 @@ export async function main() {
     { name: 'Pilhas e Baterias', icon: '🔋', category: 'hazardous', recyclable: true, pointsPerKg: 5 },
 
     // Outros
-    { name: 'Orgânico', icon: '🍎', category: 'organic', recyclable: true, pointsPerKg: 5 },
     { name: 'Têxtil', icon: '👕', category: 'textile', recyclable: true, pointsPerKg: 12 },
-    { name: 'Madeira', icon: '🪵', category: 'wood', recyclable: true, pointsPerKg: 10 },
-    { name: 'Não Reciclável', icon: '🗑️', category: 'non_recyclable', recyclable: false, pointsPerKg: 0 },
-    { name: 'Outros', icon: '📦', category: 'other', recyclable: true, pointsPerKg: 8 },
   ];
 
   console.log('🌱 Seeding materials...');
@@ -57,6 +53,25 @@ export async function main() {
         ...material,
       },
     });
+  }
+
+  // Remover materiais que não estão mais na lista
+  const currentIds = materials.map((m) =>
+    m.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/_+$/, '')
+      .replace(/^_+/, '')
+  );
+
+  const deleted = await prisma.material.deleteMany({
+    where: { id: { notIn: currentIds } },
+  });
+
+  if (deleted.count > 0) {
+    console.log(`🗑️ ${deleted.count} materiais obsoletos removidos`);
   }
 
   console.log(`✅ ${materials.length} materiais inseridos com sucesso!`);

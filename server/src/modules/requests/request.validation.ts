@@ -32,6 +32,15 @@ export const rescheduleRequestSchema = z.object({
 
 export type RescheduleRequestInput = z.infer<typeof rescheduleRequestSchema>;
 
+export const updateRequestSchema = z.object({
+  materialType: z.string().min(1, 'Tipo de material é obrigatório').optional(),
+  quantityKg: z.number().positive('Quantidade deve ser positiva').optional(),
+  observations: z.string().optional(),
+  desiredDate: z.string().optional(),
+});
+
+export type UpdateRequestInput = z.infer<typeof updateRequestSchema>;
+
 export const completeRequestSchema = z.object({
   realWeight: z.number().positive('Peso deve ser positivo'),
 });

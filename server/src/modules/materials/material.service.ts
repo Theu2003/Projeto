@@ -6,6 +6,7 @@ import { prisma } from '@/config/database';
  */
 export async function listMaterials() {
   return prisma.material.findMany({
+    where: { recyclable: true },
     orderBy: { name: 'asc' },
   });
 }

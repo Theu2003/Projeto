@@ -77,6 +77,19 @@ export async function completeRequest(req: Request, res: Response, next: NextFun
   }
 }
 
+export async function updateRequest(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await requestService.updateRequest(
+      String(req.params.id),
+      req.user!.userId,
+      req.body
+    );
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function cancelRequest(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await requestService.cancelRequest(
