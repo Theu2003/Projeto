@@ -6,7 +6,7 @@ import { MonthlyReport } from '@/types';
 function formatMonth(monthStr: string): string {
   const [year, month] = monthStr.split('-');
   const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  return date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
 }
 
 export function ReportsPage() {
@@ -18,7 +18,7 @@ export function ReportsPage() {
     apiClient
       .get<MonthlyReport[]>('/admin/reports')
       .then(setReports)
-      .catch(() => setError('Failed to load reports'))
+      .catch(() => setError('Falha ao carregar relatórios'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -33,19 +33,19 @@ export function ReportsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Reports</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Relatórios</h2>
         <div className="space-x-2">
           <button className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">
-            Export PDF
+            Exportar PDF
           </button>
           <button className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">
-            Export Excel
+            Exportar Excel
           </button>
         </div>
       </div>
 
       {reports.length === 0 ? (
-        <p className="text-gray-500 dark:text-gray-400 text-center py-8">No reports available.</p>
+        <p className="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum relatório disponível.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {reports.map((report) => (
@@ -58,19 +58,19 @@ export function ReportsPage() {
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-gray-400">New Users</span>
+                  <span className="text-gray-500 dark:text-gray-400">Novos Usuários</span>
                   <span className="font-medium">{report.newUsers}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-gray-400">New Companies</span>
+                  <span className="text-gray-500 dark:text-gray-400">Novas Empresas</span>
                   <span className="font-medium">{report.newCompanies}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-gray-400">Completed Requests</span>
+                  <span className="text-gray-500 dark:text-gray-400">Solicitações Concluídas</span>
                   <span className="font-medium">{report.completedRequests}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-gray-400">Total Weight (kg)</span>
+                  <span className="text-gray-500 dark:text-gray-400">Peso Total (kg)</span>
                   <span className="font-medium">{report.totalWeight.toLocaleString()}</span>
                 </div>
               </div>

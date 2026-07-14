@@ -15,7 +15,7 @@ export function ManageUsersPage() {
     apiClient
       .get<User[]>('/admin/users')
       .then(setUsers)
-      .catch(() => setError('Failed to load users'))
+      .catch(() => setError('Falha ao carregar usuários'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -31,25 +31,25 @@ export function ManageUsersPage() {
   }
 
   const columns: Column<User>[] = [
-    { key: 'name', header: 'Name' },
+    { key: 'name', header: 'Nome' },
     { key: 'email', header: 'Email' },
     {
       key: 'role',
-      header: 'Role',
+      header: 'Papel',
       render: (row) => (
         <span className="capitalize">{row.role}</span>
       ),
     },
     {
       key: 'points',
-      header: 'Points',
+      header: 'Pontos',
     },
     {
       key: 'active',
       header: 'Status',
       render: (row) => (
         <span className={row.active ? 'text-green-600' : 'text-red-500'}>
-          {row.active ? 'Active' : 'Inactive'}
+          {row.active ? 'Ativo' : 'Inativo'}
         </span>
       ),
     },
@@ -57,7 +57,7 @@ export function ManageUsersPage() {
 
   const actions: DataTableAction<User>[] = [
     {
-      label: (row) => (row.active ? 'Block' : 'Activate'),
+      label: (row) => (row.active ? 'Bloquear' : 'Ativar'),
       onClick: (row) => toggleActive(row.id),
     },
   ];
@@ -72,8 +72,8 @@ export function ManageUsersPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Manage Users</h2>
-      <DataTable columns={columns} data={users} actions={actions} emptyMessage="No users found." />
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Gerenciar Usuários</h2>
+      <DataTable columns={columns} data={users} actions={actions} emptyMessage="Nenhum usuário encontrado." />
     </div>
   );
 }

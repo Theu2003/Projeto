@@ -1,8 +1,16 @@
 import { prisma } from '@/config/database';
 import { AppError } from '@/middleware/errorHandler';
-import { CreateRequestInput, RescheduleRequestInput, CompleteRequestInput } from './request.validation';
+import {
+  CreateRequestInput,
+  RescheduleRequestInput,
+  CompleteRequestInput,
+} from './request.validation';
 import { emitToUser, emitToRoom } from '@/services/socket';
 
+/**
+ * Cria uma nova solicitação de coleta
+ * Notifica todas as empresas próximas via Socket.IO
+ */
 export async function createRequest(userId: string, data: CreateRequestInput) {
   const request = await prisma.collectionRequest.create({
     data: {
@@ -19,7 +27,7 @@ export async function createRequest(userId: string, data: CreateRequestInput) {
     },
   });
 
-  // Emit to all companies that a new request is available
+  // Notificar todas as empresas sobre nova solicitação
   emitToRoom('companies', 'request:new', {
     id: request.id,
     userId: request.userId,
@@ -37,46 +45,70 @@ export async function createRequest(userId: string, data: CreateRequestInput) {
   return request;
 }
 
+/**
+ * Lista solicitações do usuário ou empresa logada
+ */
 export async function listRequests(actorId: string, role: string) {
   if (role === 'company') {
     return prisma.collectionRequest.findMany({
       where: { companyId: actorId },
       orderBy: { createdAt: 'desc' },
-      include: { user: { select: { id: true, name: true, email: true, phone: true } } },
+      include: {
+        user: { select: { id: true, name: true, email: true, phone: true } },
+      },
+    });
+  }
+
+  if (role === 'admin') {
+    return prisma.collectionRequest.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        company: { select: { id: true, name: true } },
+      },
     });
   }
 
   return prisma.collectionRequest.findMany({
     where: { userId: actorId },
     orderBy: { createdAt: 'desc' },
-    include: { company: { select: { id: true, name: true, phone: true, rating: true } } },
+    include: {
+      company: { select: { id: true, name: true, phone: true, rating: true } },
+    },
   });
 }
 
+/**
+ * Retorna detalhes de uma solicitação específica
+ */
 export async function getRequestById(id: string) {
   const request = await prisma.collectionRequest.findUnique({
     where: { id },
     include: {
-      user: { select: { id: true, name: true, email: true, phone: true, address: true } },
+      user: { select: { id: true, name: true, email: true, phone: true } },
       company: { select: { id: true, name: true, phone: true, rating: true } },
     },
   });
-  if (!request) throw new AppError('Request not found', 404);
+
+  if (!request) throw new AppError('Solicitação não encontrada', 404);
   return request;
 }
 
+/**
+ * Empresa aceita uma solicitação
+ */
 export async function acceptRequest(id: string, companyId: string, role?: string) {
-  if (role && role !== 'company') throw new AppError('Only companies can accept requests', 403);
+  if (role && role !== 'company') throw new AppError('Apenas empresas podem aceitar solicitações', 403);
+
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
-  if (!request) throw new AppError('Request not found', 404);
-  if (request.status !== 'pending') throw new AppError('Request cannot be accepted', 400);
+  if (!request) throw new AppError('Solicitação não encontrada', 404);
+  if (request.status !== 'pending') throw new AppError('Solicitação não pode ser aceita', 400);
 
   const updated = await prisma.collectionRequest.update({
     where: { id },
     data: { status: 'accepted', companyId },
   });
 
-  // Notify the resident that their request was accepted
   emitToUser(request.userId, 'request:status_changed', {
     requestId: id,
     status: 'accepted',
@@ -86,14 +118,19 @@ export async function acceptRequest(id: string, companyId: string, role?: string
   return updated;
 }
 
+/**
+ * Empresa recusa uma solicitação (libera para outras empresas)
+ * Remove o companyId da solicitação para que outras empresas possam aceitá-la
+ */
 export async function rejectRequest(id: string, companyId: string) {
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
-  if (!request) throw new AppError('Request not found', 404);
-  if (request.status !== 'pending') throw new AppError('Request cannot be rejected', 400);
+  if (!request) throw new AppError('Solicitação não encontrada', 404);
+  if (request.status !== 'pending') throw new AppError('Solicitação não pode ser recusada', 400);
 
+  // Liberar a solicitação removendo vínculo com a empresa
   const updated = await prisma.collectionRequest.update({
     where: { id },
-    data: { status: 'pending', companyId: null },
+    data: { companyId: null },
   });
 
   emitToUser(request.userId, 'request:status_changed', {
@@ -105,19 +142,22 @@ export async function rejectRequest(id: string, companyId: string) {
   return updated;
 }
 
+/**
+ * Empresa informa que está a caminho
+ */
 export async function onTheWay(id: string, companyId: string, role?: string) {
-  if (role && role !== 'company') throw new AppError('Only companies can update to on_the_way', 403);
+  if (role && role !== 'company') throw new AppError('Apenas empresas podem atualizar para "a caminho"', 403);
+
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
-  if (!request) throw new AppError('Request not found', 404);
-  if (request.status !== 'accepted') throw new AppError('Request must be accepted first', 400);
-  if (request.companyId !== companyId) throw new AppError('Not your request', 403);
+  if (!request) throw new AppError('Solicitação não encontrada', 404);
+  if (request.status !== 'accepted') throw new AppError('Solicitação precisa ser aceita primeiro', 400);
+  if (request.companyId !== companyId) throw new AppError('Não é sua solicitação', 403);
 
   const updated = await prisma.collectionRequest.update({
     where: { id },
     data: { status: 'on_the_way' },
   });
 
-  // Notify the resident that the company is on the way
   emitToUser(request.userId, 'request:status_changed', {
     requestId: id,
     status: 'on_the_way',
@@ -127,12 +167,22 @@ export async function onTheWay(id: string, companyId: string, role?: string) {
   return updated;
 }
 
-export async function completeRequest(id: string, companyId: string, data: CompleteRequestInput, role?: string) {
-  if (role && role !== 'company') throw new AppError('Only companies can complete requests', 403);
+/**
+ * Empresa finaliza a coleta
+ * Registra peso real e calcula pontos para o morador
+ */
+export async function completeRequest(
+  id: string,
+  companyId: string,
+  data: CompleteRequestInput,
+  role?: string
+) {
+  if (role && role !== 'company') throw new AppError('Apenas empresas podem finalizar coletas', 403);
+
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
-  if (!request) throw new AppError('Request not found', 404);
-  if (request.status !== 'on_the_way') throw new AppError('Request must be on the way to complete', 400);
-  if (request.companyId !== companyId) throw new AppError('Not your request', 403);
+  if (!request) throw new AppError('Solicitação não encontrada', 404);
+  if (request.status !== 'on_the_way') throw new AppError('Solicitação precisa estar "a caminho"', 400);
+  if (request.companyId !== companyId) throw new AppError('Não é sua solicitação', 403);
 
   const updated = await prisma.collectionRequest.update({
     where: { id },
@@ -143,27 +193,37 @@ export async function completeRequest(id: string, companyId: string, data: Compl
     },
   });
 
-  // Notify the resident that the collection is complete
+  // Calcular e creditar pontos para o morador (10 pontos por kg)
+  const pointsEarned = Math.floor((data.realWeight ?? 0) * 10);
+  await prisma.user.update({
+    where: { id: request.userId },
+    data: { points: { increment: pointsEarned } },
+  });
+
   emitToUser(request.userId, 'request:status_changed', {
     requestId: id,
     status: 'completed',
     companyId,
     realWeight: data.realWeight,
+    pointsEarned,
   });
 
   return updated;
 }
 
+/**
+ * Cancela uma solicitação (morador ou empresa)
+ */
 export async function cancelRequest(id: string, actorId: string, role: string) {
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
-  if (!request) throw new AppError('Request not found', 404);
-  if (request.status === 'completed') throw new AppError('Cannot cancel completed request', 400);
+  if (!request) throw new AppError('Solicitação não encontrada', 404);
+  if (request.status === 'completed') throw new AppError('Não é possível cancelar coleta finalizada', 400);
 
   if (role === 'resident' && request.userId !== actorId) {
-    throw new AppError('Not your request', 403);
+    throw new AppError('Não é sua solicitação', 403);
   }
   if (role === 'company' && request.companyId !== actorId) {
-    throw new AppError('Not your request', 403);
+    throw new AppError('Não é sua solicitação', 403);
   }
 
   const updated = await prisma.collectionRequest.update({
@@ -171,7 +231,6 @@ export async function cancelRequest(id: string, actorId: string, role: string) {
     data: { status: 'cancelled' },
   });
 
-  // Notify both parties about cancellation
   emitToUser(request.userId, 'request:status_changed', {
     requestId: id,
     status: 'cancelled',
@@ -189,6 +248,9 @@ export async function cancelRequest(id: string, actorId: string, role: string) {
   return updated;
 }
 
+/**
+ * Reagenda uma solicitação
+ */
 export async function rescheduleRequest(
   id: string,
   actorId: string,
@@ -196,13 +258,13 @@ export async function rescheduleRequest(
   data: RescheduleRequestInput
 ) {
   const request = await prisma.collectionRequest.findUnique({ where: { id } });
-  if (!request) throw new AppError('Request not found', 404);
+  if (!request) throw new AppError('Solicitação não encontrada', 404);
 
   if (role === 'resident' && request.userId !== actorId) {
-    throw new AppError('Not your request', 403);
+    throw new AppError('Não é sua solicitação', 403);
   }
   if (role === 'company' && request.companyId !== actorId) {
-    throw new AppError('Not your request', 403);
+    throw new AppError('Não é sua solicitação', 403);
   }
 
   const updated = await prisma.collectionRequest.update({
@@ -214,7 +276,6 @@ export async function rescheduleRequest(
     },
   });
 
-  // Notify both parties about reschedule
   emitToUser(request.userId, 'request:status_changed', {
     requestId: id,
     status: 'rescheduled',

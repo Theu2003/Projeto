@@ -38,7 +38,7 @@ export function MapView({ center, markers = [], route }: MapViewProps) {
   if (!center && !location) {
     return (
       <div className="flex items-center justify-center h-96 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <p className="text-gray-500">Loading map...</p>
+        <p className="text-gray-500">Carregando mapa...</p>
       </div>
     );
   }
@@ -49,7 +49,7 @@ export function MapView({ center, markers = [], route }: MapViewProps) {
       className="relative h-96 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
     >
       <div className="absolute inset-0 flex items-center justify-center">
-        <p className="text-gray-400 text-sm">Google Maps Integration</p>
+        <p className="text-gray-400 text-sm">Integração com Google Maps</p>
       </div>
 
       {markers.map((marker) => (
@@ -66,9 +66,9 @@ export function MapView({ center, markers = [], route }: MapViewProps) {
       ))}
 
       <div className="absolute bottom-2 left-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow text-xs">
-        <span className="text-gray-600 dark:text-gray-300">{markers.length} markers</span>
+        <span className="text-gray-600 dark:text-gray-300">{markers.length} marcadores</span>
         {route && (
-          <span className="ml-2 text-green-600 dark:text-green-400">Route active</span>
+          <span className="ml-2 text-green-600 dark:text-green-400">Rota ativa</span>
         )}
       </div>
     </div>

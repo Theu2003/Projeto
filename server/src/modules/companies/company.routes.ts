@@ -6,16 +6,18 @@ import { updateCompanySchema, nearbySearchSchema } from './company.validation';
 
 const router = Router();
 
+// Rota pública - buscar empresas próximas
 router.get('/nearby', (req: Request, res: Response, next: NextFunction) => {
   const result = nearbySearchSchema.safeParse(req.query);
   if (!result.success) {
-    res.status(400).json({ error: 'Validation error', details: result.error.issues });
+    res.status(400).json({ error: 'Erro de validação', details: result.error.issues });
     return;
   }
   req.query = result.data as any;
   next();
 }, companyController.findNearby);
 
+// Rotas protegidas - apenas empresas
 router.use(authenticateToken);
 router.use(requireRole('company'));
 

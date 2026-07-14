@@ -31,7 +31,9 @@ export interface Company {
 
 export interface AuthResponse {
   token: string;
-  user: User | Company;
+  refreshToken?: string;
+  user: User | null;
+  company: Company | null;
 }
 
 export interface LoginRequest {

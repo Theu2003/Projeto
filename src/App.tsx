@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterResidentPage } from '@/pages/auth/RegisterResidentPage';
 import { RegisterCompanyPage } from '@/pages/auth/RegisterCompanyPage';
+import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 import { ResidentDashboard } from '@/pages/resident/ResidentDashboard';
 import { NewRequestPage } from '@/pages/resident/NewRequestPage';
 import { RequestDetailPage as ResidentRequestDetail } from '@/pages/resident/RequestDetailPage';
@@ -48,6 +49,7 @@ export function AppRoutes() {
       <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route path="/register/resident" element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterResidentPage />} />
       <Route path="/register/company" element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterCompanyPage />} />
+      <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/" replace /> : <ForgotPasswordPage />} />
 
       {/* Protected routes */}
       <Route

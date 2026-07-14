@@ -1,9 +1,13 @@
 import { z } from 'zod';
 
 export const createReviewSchema = z.object({
-  companyId: z.string().min(1, 'Company ID is required'),
-  requestId: z.string().min(1, 'Request ID is required'),
-  rating: z.number().int().min(1, 'Rating must be at least 1').max(5, 'Rating must be at most 5'),
+  companyId: z.string().optional(),
+  requestId: z.string().min(1, 'ID da solicitação é obrigatório'),
+  rating: z
+    .number()
+    .int()
+    .min(1, 'Avaliação deve ser no mínimo 1')
+    .max(5, 'Avaliação deve ser no máximo 5'),
   comment: z.string().optional(),
 });
 

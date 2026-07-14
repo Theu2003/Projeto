@@ -12,8 +12,8 @@ export const REQUEST_STATUSES = [
 export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 
 export const createRequestSchema = z.object({
-  materialType: z.string().min(1, 'Material type is required'),
-  quantityKg: z.number().positive('Quantity must be positive'),
+  materialType: z.string().min(1, 'Tipo de material é obrigatório'),
+  quantityKg: z.number().positive('Quantidade deve ser positiva'),
   observations: z.string().optional(),
   photos: z.array(z.string()).optional(),
   desiredDate: z.string().optional(),
@@ -26,14 +26,14 @@ export const createRequestSchema = z.object({
 export type CreateRequestInput = z.infer<typeof createRequestSchema>;
 
 export const rescheduleRequestSchema = z.object({
-  desiredDate: z.string().min(1, 'Date is required'),
-  desiredTime: z.string().min(1, 'Time is required'),
+  desiredDate: z.string().min(1, 'Data é obrigatória'),
+  desiredTime: z.string().min(1, 'Horário é obrigatório'),
 });
 
 export type RescheduleRequestInput = z.infer<typeof rescheduleRequestSchema>;
 
 export const completeRequestSchema = z.object({
-  realWeight: z.number().positive('Weight must be positive'),
+  realWeight: z.number().positive('Peso deve ser positivo'),
 });
 
 export type CompleteRequestInput = z.infer<typeof completeRequestSchema>;

@@ -5,6 +5,9 @@ import { initializeSocket } from './services/socket.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
+/**
+ * Servidor HTTP + Socket.IO para comunicação em tempo real
+ */
 const httpServer = createServer(app);
 
 const io = new SocketIOServer(httpServer, {
@@ -12,12 +15,23 @@ const io = new SocketIOServer(httpServer, {
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
     methods: ['GET', 'POST'],
   },
+  transports: ['websocket', 'polling'],
 });
 
+// Inicializa Socket.IO com autenticação
 initializeSocket(io);
 
 httpServer.listen(PORT, () => {
-  console.log(`EcoColeta server running on http://localhost:${PORT}`);
+  console.log(`
+╔══════════════════════════════════════════╗
+║         🌱 EcoColeta Server             ║
+║──────────────────────────────────────────║
+║  🚀 Servidor rodando em:                ║
+║  📡 http://localhost:${PORT}              ║
+║  🔌 WebSocket ativo                     ║
+║  🗄️  SQLite + Prisma                    ║
+╚══════════════════════════════════════════╝
+  `);
 });
 
 export default httpServer;

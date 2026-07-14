@@ -31,7 +31,11 @@ export async function getDashboard(req: Request, res: Response, next: NextFuncti
 export async function findNearby(req: Request, res: Response, next: NextFunction) {
   try {
     const { lat, lng, radius } = req.query as any;
-    const result = await companyService.findNearby(lat, lng, radius);
+    const result = await companyService.findNearby(
+      Number(lat),
+      Number(lng),
+      Number(radius || 10)
+    );
     res.json(result);
   } catch (error) {
     next(error);

@@ -5,7 +5,7 @@ import { DashboardSkeleton } from '@/components/Skeleton';
 import { AdminStats } from '@/types';
 
 function formatNumber(n: number): string {
-  return n.toLocaleString('en-US');
+  return n.toLocaleString('pt-BR');
 }
 
 export function AdminDashboard() {
@@ -17,7 +17,7 @@ export function AdminDashboard() {
     apiClient
       .get<AdminStats>('/admin/stats')
       .then(setStats)
-      .catch(() => setError('Failed to load platform statistics'))
+      .catch(() => setError('Falha ao carregar estatísticas da plataforma'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -32,21 +32,21 @@ export function AdminDashboard() {
   if (!stats) return null;
 
   const cards = [
-    { label: 'Total Users', value: stats.totalUsers },
-    { label: 'Active Users', value: stats.activeUsers },
-    { label: 'Total Companies', value: stats.totalCompanies },
-    { label: 'Approved Companies', value: stats.approvedCompanies },
-    { label: 'Total Requests', value: stats.totalRequests },
-    { label: 'Completed Requests', value: stats.completedRequests },
-    { label: 'Pending Requests', value: stats.pendingRequests },
-    { label: 'Total Points', value: stats.totalPoints },
+    { label: 'Total Usuários', value: stats.totalUsers },
+    { label: 'Usuários Ativos', value: stats.activeUsers },
+    { label: 'Total Empresas', value: stats.totalCompanies },
+    { label: 'Empresas Aprovadas', value: stats.approvedCompanies },
+    { label: 'Total Solicitações', value: stats.totalRequests },
+    { label: 'Solicitações Concluídas', value: stats.completedRequests },
+    { label: 'Solicitações Pendentes', value: stats.pendingRequests },
+    { label: 'Total Pontos', value: stats.totalPoints },
   ];
 
   return (
     <div>
       <FadeIn type="fade-down" duration={500}>
         <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          Platform Statistics
+          Estatísticas da Plataforma
         </h2>
       </FadeIn>
 

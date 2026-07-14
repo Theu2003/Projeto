@@ -7,57 +7,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// Morador (cliente) do sistema EcoColeta
 model User {
-  id           String  @id @default(cuid())
-  name         String
-  cpf          String  @unique
-  phone        String
-  email        String  @unique
-  passwordHash String
-  role         String  @default("resident")
-  address      String?
-  latitude     Float?
-  longitude    Float?
-  points       Int     @default(0)
-  active       Boolean @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                String    @id @default(cuid())
+  name              String
+  cpf               String    @unique
+  phone             String
+  email             String    @unique
+  passwordHash      String
+  role              String    @default("resident")
+  address           String?
+  latitude          Float?
+  longitude         Float?
+  points            Int       @default(0)
+  active            Boolean   @default(true)
+  resetCode         String?
+  resetCodeExpiresAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  requests          CollectionRequest[] @relation("UserRequests")
-  reviews           Review[]
-  notifications     Notification[]      @relation("UserNotifications")
-  addresses         Address[]
+  requests      CollectionRequest[] @relation("UserRequests")
+  reviews       Review[]
+  notifications Notification[]      @relation("UserNotifications")
+  addresses     Address[]
 
   @@map("users")
 }
 
+/// Empresa de coleta seletiva
 model Company {
-  id                  String   @id @default(cuid())
-  name                String
-  cnpj                String   @unique
-  responsible         String
-  phone               String
-  email               String   @unique
-  passwordHash        String
-  address             String?
-  latitude            Float?
-  longitude           Float?
-  serviceAreaRadius   Float    @default(10)
-  materials           String   @default("[]")
-  approved            Boolean  @default(false)
-  active              Boolean  @default(true)
-  rating              Float    @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  name               String
+  cnpj               String    @unique
+  responsible        String
+  phone              String
+  email              String    @unique
+  passwordHash       String
+  address            String?
+  latitude           Float?
+  longitude          Float?
+  serviceAreaRadius  Float     @default(10)
+  materials          String    @default("[]")
+  approved           Boolean   @default(false)
+  active             Boolean   @default(true)
+  rating             Float     @default(0)
+  resetCode          String?
+  resetCodeExpiresAt DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  requests            CollectionRequest[] @relation("CompanyRequests")
-  reviews             Review[]
-  notifications       Notification[]      @relation("CompanyNotifications")
-  addresses           Address[]
+  requests      CollectionRequest[] @relation("CompanyRequests")
+  reviews       Review[]
+  notifications Notification[]      @relation("CompanyNotifications")
+  addresses     Address[]
 
   @@map("companies")
 }
 
+/// Solicitação de coleta de materiais recicláveis
 model CollectionRequest {
   id           String   @id @default(cuid())
   userId       String
@@ -77,15 +84,16 @@ model CollectionRequest {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user    User          @relation("UserRequests", fields: [userId], references: [id])
-  company Company?      @relation("CompanyRequests", fields: [companyId], references: [id])
+  user    User     @relation("UserRequests", fields: [userId], references: [id])
+  company Company? @relation("CompanyRequests", fields: [companyId], references: [id])
   review  Review?
 
   @@map("collection_requests")
 }
 
+/// Catálogo de materiais recicláveis
 model Material {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   icon        String
   category    String
@@ -95,6 +103,7 @@ model Material {
   @@map("materials")
 }
 
+/// Avaliação de empresa feita por morador após coleta
 model Review {
   id        String   @id @default(cuid())
   userId    String
@@ -111,6 +120,7 @@ model Review {
   @@map("reviews")
 }
 
+/// Notificação para usuários e empresas
 model Notification {
   id        String   @id @default(cuid())
   userId    String?
@@ -127,6 +137,7 @@ model Notification {
   @@map("notifications")
 }
 
+/// Endereço (suporte a múltiplos endereços por usuário/empresa)
 model Address {
   id           String  @id @default(cuid())
   userId       String?

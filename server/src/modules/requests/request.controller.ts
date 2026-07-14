@@ -30,7 +30,11 @@ export async function getRequestById(req: Request, res: Response, next: NextFunc
 
 export async function acceptRequest(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.acceptRequest(String(req.params.id), req.user!.userId, req.user!.role);
+    const result = await requestService.acceptRequest(
+      String(req.params.id),
+      req.user!.userId,
+      req.user!.role
+    );
     res.json(result);
   } catch (error) {
     next(error);
@@ -48,7 +52,11 @@ export async function rejectRequest(req: Request, res: Response, next: NextFunct
 
 export async function onTheWay(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.onTheWay(String(req.params.id), req.user!.userId, req.user!.role);
+    const result = await requestService.onTheWay(
+      String(req.params.id),
+      req.user!.userId,
+      req.user!.role
+    );
     res.json(result);
   } catch (error) {
     next(error);
@@ -57,7 +65,12 @@ export async function onTheWay(req: Request, res: Response, next: NextFunction) 
 
 export async function completeRequest(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.completeRequest(String(req.params.id), req.user!.userId, req.body, req.user!.role);
+    const result = await requestService.completeRequest(
+      String(req.params.id),
+      req.user!.userId,
+      req.body,
+      req.user!.role
+    );
     res.json(result);
   } catch (error) {
     next(error);
@@ -66,7 +79,11 @@ export async function completeRequest(req: Request, res: Response, next: NextFun
 
 export async function cancelRequest(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await requestService.cancelRequest(String(req.params.id), req.user!.userId, req.user!.role);
+    const result = await requestService.cancelRequest(
+      String(req.params.id),
+      req.user!.userId,
+      req.user!.role
+    );
     res.json(result);
   } catch (error) {
     next(error);

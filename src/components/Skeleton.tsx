@@ -76,7 +76,7 @@ export function DashboardSkeleton({ type = 'resident' }: { type?: 'resident' | '
   const requestCards = type === 'admin' ? 0 : 5;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6" aria-label="Loading content">
+    <div className="max-w-6xl mx-auto p-6 space-y-6" aria-label="Carregando conteúdo">
       {/* Title */}
       <SkeletonElement variant="text" width="240px" height="28px" />
 
@@ -112,7 +112,7 @@ export function DashboardSkeleton({ type = 'resident' }: { type?: 'resident' | '
 
 export function RequestDetailSkeleton() {
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6" aria-label="Loading content">
+    <div className="max-w-2xl mx-auto p-6 space-y-6" aria-label="Carregando conteúdo">
       <SkeletonElement variant="text" width="200px" height="28px" />
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
         <div className="flex items-center justify-between">
@@ -143,7 +143,7 @@ export function RequestDetailSkeleton() {
 
 export function CompanyRequestDetailSkeleton() {
   return (
-    <div className="max-w-2xl mx-auto space-y-6" aria-label="Loading content">
+    <div className="max-w-2xl mx-auto space-y-6" aria-label="Carregando conteúdo">
       <SkeletonElement variant="text" width="200px" height="28px" />
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700 space-y-4">
         <div className="flex items-center justify-between">
@@ -176,7 +176,7 @@ export function CompanyRequestDetailSkeleton() {
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="space-y-6" aria-label="Loading content">
+    <div className="space-y-6" aria-label="Carregando conteúdo">
       <SkeletonElement variant="text" width="200px" height="28px" />
       <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Header */}
@@ -204,7 +204,7 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
 
 export function ReportsSkeleton() {
   return (
-    <div className="space-y-6" aria-label="Loading content">
+    <div className="space-y-6" aria-label="Carregando conteúdo">
       <div className="flex items-center justify-between">
         <SkeletonElement variant="text" width="120px" height="28px" />
         <div className="flex gap-2">
@@ -231,7 +231,7 @@ export function ReportsSkeleton() {
 
 export function FormSkeleton() {
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6" aria-label="Loading content">
+    <div className="max-w-2xl mx-auto p-6 space-y-6" aria-label="Carregando conteúdo">
       <SkeletonElement variant="text" width="220px" height="28px" />
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-5">
         <div className="space-y-2">

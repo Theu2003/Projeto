@@ -15,7 +15,7 @@ export function ManageCompaniesPage() {
     apiClient
       .get<Company[]>('/admin/companies')
       .then(setCompanies)
-      .catch(() => setError('Failed to load companies'))
+      .catch(() => setError('Falha ao carregar empresas'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,15 +38,15 @@ export function ManageCompaniesPage() {
   }
 
   const columns: Column<Company>[] = [
-    { key: 'name', header: 'Name' },
+    { key: 'name', header: 'Nome' },
     { key: 'email', header: 'Email' },
     { key: 'cnpj', header: 'CNPJ' },
     {
       key: 'approved',
-      header: 'Approved',
+      header: 'Aprovada',
       render: (row) => (
         <span className={row.approved ? 'text-green-600' : 'text-yellow-500'}>
-          {row.approved ? 'Yes' : 'No'}
+          {row.approved ? 'Sim' : 'Não'}
         </span>
       ),
     },
@@ -55,24 +55,24 @@ export function ManageCompaniesPage() {
       header: 'Status',
       render: (row) => (
         <span className={row.active ? 'text-green-600' : 'text-red-500'}>
-          {row.active ? 'Active' : 'Inactive'}
+          {row.active ? 'Ativa' : 'Inativa'}
         </span>
       ),
     },
     {
       key: 'rating',
-      header: 'Rating',
+      header: 'Avaliação',
       render: (row) => row.rating.toFixed(1),
     },
   ];
 
   const actions: DataTableAction<Company>[] = [
     {
-      label: (row) => (row.approved ? null : 'Approve'),
+      label: (row) => (row.approved ? null : 'Aprovar'),
       onClick: (row) => approveCompany(row.id),
     },
     {
-      label: (row) => (row.active ? 'Block' : 'Unblock'),
+      label: (row) => (row.active ? 'Bloquear' : 'Desbloquear'),
       onClick: (row) => toggleActive(row.id),
     },
   ];
@@ -88,13 +88,13 @@ export function ManageCompaniesPage() {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-        Manage Companies
+        Gerenciar Empresas
       </h2>
       <DataTable
         columns={columns}
         data={companies}
         actions={actions}
-        emptyMessage="No companies found."
+        emptyMessage="Nenhuma empresa encontrada."
       />
     </div>
   );

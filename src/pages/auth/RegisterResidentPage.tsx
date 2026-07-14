@@ -7,6 +7,8 @@ import { Card } from '@/components/Card';
 
 export function RegisterResidentPage() {
   const [name, setName] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,6 +25,29 @@ export function RegisterResidentPage() {
     return true;
   }
 
+  function formatCpf(value: string): string {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+    if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+  }
+
+  function formatPhone(value: string): string {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 2) return `(${digits}`;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+
+  function handleCpfChange(value: string) {
+    setCpf(formatCpf(value));
+  }
+
+  function handlePhoneChange(value: string) {
+    setPhone(formatPhone(value));
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     clearError();
@@ -31,7 +56,9 @@ export function RegisterResidentPage() {
     if (!validatePasswords()) return;
 
     try {
-      await register({ name, email, password });
+      const cpfDigits = cpf.replace(/\D/g, '');
+      const phoneDigits = phone.replace(/\D/g, '');
+      await register({ name, cpf: cpfDigits, phone: phoneDigits, email, password });
       navigate('/');
     } catch {
       // error is set in AuthContext
@@ -68,6 +95,24 @@ export function RegisterResidentPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Seu nome completo"
+              required
+            />
+
+            <Input
+              label="CPF"
+              type="text"
+              value={cpf}
+              onChange={(e) => handleCpfChange(e.target.value)}
+              placeholder="000.000.000-00"
+              required
+            />
+
+            <Input
+              label="Telefone"
+              type="tel"
+              value={phone}
+              onChange={(e) => handlePhoneChange(e.target.value)}
+              placeholder="(11) 99999-8888"
               required
             />
 

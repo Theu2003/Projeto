@@ -72,6 +72,15 @@ export function LoginPage() {
                 required
               />
 
+              <div className="text-right -mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-green-600 dark:text-green-400 hover:underline"
+                >
+                  Esqueceu sua senha?
+                </Link>
+              </div>
+
               <Button type="submit" fullWidth isLoading={isLoading}>
                 Entrar
               </Button>

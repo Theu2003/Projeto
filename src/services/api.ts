@@ -42,7 +42,7 @@ class ApiClient {
         this.clearToken();
       }
       const error = await response.json();
-      throw new Error(error.message || 'Request failed');
+      throw new Error(error.error || error.message || 'Request failed');
     }
     return response.json();
   }

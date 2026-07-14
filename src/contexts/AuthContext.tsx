@@ -51,9 +51,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
       apiClient.setToken(response.token);
-      setUser(response.user as User);
+      if (response.company) {
+        setCompany(response.company);
+        setUser(null);
+      } else {
+        setUser(response.user as User);
+        setCompany(null);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Falha no login');
       throw err;
     } finally {
       setIsLoading(false);
@@ -68,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       apiClient.setToken(response.token);
       setUser(response.user as User);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google login failed');
+      setError(err instanceof Error ? err.message : 'Falha no login com Google');
       throw err;
     } finally {
       setIsLoading(false);
@@ -83,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       apiClient.setToken(response.token);
       setUser(response.user as User);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : 'Falha no cadastro');
       throw err;
     } finally {
       setIsLoading(false);
@@ -96,9 +102,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/register/company', data);
       apiClient.setToken(response.token);
-      setCompany(response.user as Company);
+      setCompany(response.company as Company);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Company registration failed');
+      setError(err instanceof Error ? err.message : 'Falha no cadastro da empresa');
       throw err;
     } finally {
       setIsLoading(false);

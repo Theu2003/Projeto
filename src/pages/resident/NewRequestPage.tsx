@@ -27,8 +27,8 @@ export function NewRequestPage() {
 
   function validate(): FormErrors {
     const newErrors: FormErrors = {};
-    if (!materialType) newErrors.materialType = 'Material is required';
-    if (!quantityKg || parseFloat(quantityKg) <= 0) newErrors.quantityKg = 'Quantity is required';
+    if (!materialType) newErrors.materialType = 'Material é obrigatório';
+    if (!quantityKg || parseFloat(quantityKg) <= 0) newErrors.quantityKg = 'Quantidade é obrigatória';
     return newErrors;
   }
 
@@ -49,7 +49,7 @@ export function NewRequestPage() {
       });
       navigate(`/resident/requests/${result.id}`);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to create request');
+      setSubmitError(err instanceof Error ? err.message : 'Falha ao criar solicitação');
     } finally {
       setIsSubmitting(false);
     }
@@ -57,7 +57,7 @@ export function NewRequestPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">New Collection Request</h1>
+      <h1 className="text-2xl font-bold mb-6">Nova Solicitação de Coleta</h1>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <div>
@@ -70,7 +70,7 @@ export function NewRequestPage() {
             onChange={(e) => setMaterialType(e.target.value)}
             className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent border-gray-300 dark:border-gray-600"
           >
-            <option value="">Select material</option>
+            <option value="">Selecione o material</option>
             {materials.map((m) => (
               <option key={m.id} value={m.name.toLowerCase()}>
                 {m.icon} {m.name}
@@ -81,7 +81,7 @@ export function NewRequestPage() {
         </div>
 
         <Input
-          label="Quantity (kg)"
+          label="Quantidade (kg)"
           type="number"
           step="0.1"
           min="0"
@@ -92,7 +92,7 @@ export function NewRequestPage() {
         />
 
         <Input
-          label="Desired Date"
+          label="Data Desejada"
           type="date"
           value={desiredDate}
           onChange={(e) => setDesiredDate(e.target.value)}
@@ -100,7 +100,7 @@ export function NewRequestPage() {
 
         <div>
           <label htmlFor="observations" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Observations
+            Observações
           </label>
           <textarea
             id="observations"
@@ -108,14 +108,14 @@ export function NewRequestPage() {
             onChange={(e) => setObservations(e.target.value)}
             rows={3}
             className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent border-gray-300 dark:border-gray-600"
-            placeholder="Any special instructions..."
+            placeholder="Instruções especiais..."
           />
         </div>
 
         {submitError && <p className="text-red-500 text-sm">{submitError}</p>}
 
         <Button type="submit" fullWidth isLoading={isSubmitting}>
-          Submit Request
+          Solicitar Coleta
         </Button>
       </form>
     </div>

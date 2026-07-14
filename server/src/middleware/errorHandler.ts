@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 
+/**
+ * Custom application error with status code
+ */
 export class AppError extends Error {
   public statusCode: number;
 
@@ -10,6 +13,10 @@ export class AppError extends Error {
   }
 }
 
+/**
+ * Global error handler middleware
+ * Retorna erros estruturados para o cliente
+ */
 export function errorHandler(
   err: Error,
   _req: Request,
@@ -21,6 +28,6 @@ export function errorHandler(
     return;
   }
 
-  console.error('Unexpected error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error('❌ Erro inesperado:', err);
+  res.status(500).json({ error: 'Erro interno do servidor' });
 }

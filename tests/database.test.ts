@@ -103,7 +103,7 @@ describe('Seed Script', () => {
     expect(papel!.pointsPerKg).toBe(10);
     expect(papel!.recyclable).toBe(true);
 
-    const naoReciclavel = materials.find(m => m.id === 'não_reciclável');
+    const naoReciclavel = materials.find(m => m.id === 'nao_reciclavel');
     expect(naoReciclavel).toBeDefined();
     expect(naoReciclavel!.recyclable).toBe(false);
     expect(naoReciclavel!.pointsPerKg).toBe(0);

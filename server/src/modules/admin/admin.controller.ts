@@ -28,6 +28,24 @@ export async function approveCompany(req: Request, res: Response, next: NextFunc
   }
 }
 
+export async function toggleUserActive(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminService.toggleUserActive(String(req.params.id));
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function toggleCompanyActive(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminService.toggleCompanyActive(String(req.params.id));
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function blockUser(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await adminService.blockUser(String(req.params.id));
@@ -49,6 +67,15 @@ export async function blockCompany(req: Request, res: Response, next: NextFuncti
 export async function getStats(_req: Request, res: Response, next: NextFunction) {
   try {
     const result = await adminService.getStats();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getReports(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminService.getMonthlyReports();
     res.json(result);
   } catch (error) {
     next(error);

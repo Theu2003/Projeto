@@ -19,7 +19,7 @@ export function CollectionProcessPage() {
     apiClient
       .get<CollectionRequest>(`/requests/${id}`)
       .then(setRequest)
-      .catch(() => setError('Failed to load'))
+      .catch(() => setError('Falha ao carregar'))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -45,7 +45,7 @@ export function CollectionProcessPage() {
       setRequest((prev) =>
         prev ? { ...prev, status: 'completed', realWeight: weight } : null
       );
-      setSuccessMessage('Collection completed successfully!');
+      setSuccessMessage('Coleta concluída com sucesso!');
     } finally {
       setActionLoading(false);
     }
@@ -64,7 +64,7 @@ export function CollectionProcessPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-        Collection Process
+        Processo de Coleta
       </h2>
 
       {successMessage && (
@@ -76,7 +76,7 @@ export function CollectionProcessPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
         {request.user && (
           <div className="mb-4">
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">Customer</h3>
+            <h3 className="font-medium text-gray-900 dark:text-gray-100">Cliente</h3>
             <p className="text-gray-600 dark:text-gray-400">{request.user.name}</p>
           </div>
         )}
@@ -87,13 +87,12 @@ export function CollectionProcessPage() {
             <p className="text-gray-900 dark:text-gray-100">{request.materialType}</p>
           </div>
           <div>
-            <h4 className="text-sm font-medium text-gray-500">Estimated Quantity</h4>
+            <h4 className="text-sm font-medium text-gray-500">Quantidade Estimada</h4>
             <p className="text-gray-900 dark:text-gray-100">{request.quantityKg} kg</p>
           </div>
         </div>
 
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-500">Address</h4>
+        <div className="mb-4">            <h4 className="text-sm font-medium text-gray-500">Endereço</h4>
           <p className="text-gray-900 dark:text-gray-100">{request.address}</p>
         </div>
 
@@ -104,36 +103,36 @@ export function CollectionProcessPage() {
               disabled={actionLoading}
               className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
-              {actionLoading ? 'Processing...' : 'Start Journey'}
+              {actionLoading ? 'Processando...' : 'Iniciar Rota'}
             </button>
           )}
 
           {request.status === 'on_the_way' && (
             <div className="space-y-4">
               <Input
-                label="Real Weight (kg)"
+                label="Peso Real (kg)"
                 type="number"
                 step="0.1"
                 min="0"
                 value={realWeight}
                 onChange={(e) => setRealWeight(e.target.value)}
-                placeholder="Enter actual weight"
+                placeholder="Peso real da coleta"
               />
               <button
                 onClick={handleComplete}
                 disabled={actionLoading || !realWeight}
                 className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
               >
-                {actionLoading ? 'Processing...' : 'Complete Collection'}
+                {actionLoading ? 'Processando...' : 'Concluir Coleta'}
               </button>
             </div>
           )}
 
           {request.status === 'completed' && (
             <div className="text-center py-4 text-green-600 dark:text-green-400 font-medium">
-              Collection Completed
+              Coleta Concluída
               {request.realWeight && (
-                <span className="block text-sm mt-1">Real weight: {request.realWeight} kg</span>
+                <span className="block text-sm mt-1">Peso real: {request.realWeight} kg</span>
               )}
             </div>
           )}

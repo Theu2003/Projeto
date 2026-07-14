@@ -15,7 +15,7 @@ export function HistoryPage() {
   useEffect(() => {
     apiClient.get<CollectionRequest[]>('/requests')
       .then(setRequests)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load'))
+      .catch((err) => setError(err instanceof Error ? err.message : 'Falha ao carregar'))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -27,17 +27,17 @@ export function HistoryPage() {
 
   const uniqueMaterials = [...new Set(requests.map((r) => r.materialType))];
 
-  if (isLoading) return <div className="text-center py-8 text-gray-500">Loading...</div>;
-  if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
+  if (isLoading) return <div className="text-center py-8 text-gray-500">Carregando...</div>;
+  if (error) return <div className="text-center py-8 text-red-500">Erro: {error}</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Request History</h1>
+      <h1 className="text-2xl font-bold mb-6">Histórico de Solicitações</h1>
 
       <div className="flex gap-4 mb-6">
         <div>
           <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Filter by Status
+            Filtrar por Status
           </label>
           <select
             id="statusFilter"
@@ -45,18 +45,18 @@ export function HistoryPage() {
             onChange={(e) => setStatusFilter(e.target.value as RequestStatus | '')}
             className="px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 border-gray-300 dark:border-gray-600"
           >
-            <option value="">All</option>
-            <option value="pending">Pending</option>
-            <option value="accepted">Accepted</option>
-            <option value="on_the_way">On the Way</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="rescheduled">Rescheduled</option>
+            <option value="">Todos</option>
+            <option value="pending">Pendente</option>
+            <option value="accepted">Aceito</option>
+            <option value="on_the_way">A Caminho</option>
+            <option value="completed">Concluído</option>
+            <option value="cancelled">Cancelado</option>
+            <option value="rescheduled">Reagendado</option>
           </select>
         </div>
         <div>
           <label htmlFor="materialFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Filter by Material
+            Filtrar por Material
           </label>
           <select
             id="materialFilter"
@@ -87,7 +87,7 @@ export function HistoryPage() {
           </Link>
         ))}
         {filtered.length === 0 && (
-          <p className="text-center text-gray-500 py-8">No requests found</p>
+          <p className="text-center text-gray-500 py-8">Nenhuma solicitação encontrada</p>
         )}
       </div>
     </div>

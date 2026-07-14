@@ -5,7 +5,7 @@ import { DashboardSkeleton } from '@/components/Skeleton';
 import { CompanyDashboardData } from '@/types';
 
 function formatNumber(n: number): string {
-  return n.toLocaleString('en-US');
+  return n.toLocaleString('pt-BR');
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -25,7 +25,7 @@ export function CompanyDashboard() {
     apiClient
       .get<CompanyDashboardData>('/companies/dashboard')
       .then(setData)
-      .catch(() => setError('Failed to load dashboard'))
+      .catch(() => setError('Falha ao carregar painel'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -40,10 +40,10 @@ export function CompanyDashboard() {
   if (!data) return null;
 
   const statCards = [
-    { label: 'Total Requests', value: data.stats.totalRequests },
-    { label: 'Pending', value: data.stats.pendingRequests },
-    { label: 'Completed Today', value: data.stats.completedToday },
-    { label: 'Total Collected (kg)', value: data.stats.totalCollected },
+    { label: 'Total Solicitações', value: data.stats.totalRequests },
+    { label: 'Pendentes', value: data.stats.pendingRequests },
+    { label: 'Concluídas Hoje', value: data.stats.completedToday },
+    { label: 'Total Coletado (kg)', value: data.stats.totalCollected },
   ];
 
   return (
@@ -76,10 +76,10 @@ export function CompanyDashboard() {
       <FadeIn type="fade-up" duration={400} delay={200}>
         <div>
           <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
-            Recent Reviews
+            Avaliações Recentes
           </h3>
           {data.recentReviews.length === 0 ? (
-            <p className="text-gray-500">No reviews yet</p>
+            <p className="text-gray-500">Nenhuma avaliação ainda</p>
           ) : (
             <div className="space-y-3">
               {data.recentReviews.map((review, index) => (

@@ -27,6 +27,8 @@ describe('RegisterResidentPage', () => {
   it('renders registration form fields', () => {
     renderRegisterPage();
     expect(screen.getByLabelText(/nome/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/cpf/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/telefone/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/mínimo 6 caracteres/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/repita a senha/i)).toBeInTheDocument();
@@ -62,12 +64,15 @@ describe('RegisterResidentPage', () => {
       json: async () => ({
         token: 'new-token',
         user: { id: '1', name: 'João', email: 'joao@email.com', role: 'resident', points: 0, active: true },
+        company: null,
       }),
     } as Response);
 
     renderRegisterPage();
 
     await user.type(screen.getByLabelText(/nome/i), 'João');
+    await user.type(screen.getByLabelText(/cpf/i), '12345678901');
+    await user.type(screen.getByLabelText(/telefone/i), '11999998888');
     await user.type(screen.getByLabelText(/email/i), 'joao@email.com');
     await user.type(screen.getByPlaceholderText(/mínimo 6 caracteres/i), 'password123');
     await user.type(screen.getByPlaceholderText(/repita a senha/i), 'password123');
@@ -79,6 +84,8 @@ describe('RegisterResidentPage', () => {
         method: 'POST',
         body: JSON.stringify({
           name: 'João',
+          cpf: '12345678901',
+          phone: '11999998888',
           email: 'joao@email.com',
           password: 'password123',
         }),
@@ -91,12 +98,14 @@ describe('RegisterResidentPage', () => {
     vi.spyOn(global, 'fetch').mockResolvedValue({
       ok: false,
       status: 400,
-      json: async () => ({ message: 'Email já cadastrado' }),
+      json: async () => ({ error: 'Email já cadastrado' }),
     } as Response);
 
     renderRegisterPage();
 
     await user.type(screen.getByLabelText(/nome/i), 'João');
+    await user.type(screen.getByLabelText(/cpf/i), '12345678901');
+    await user.type(screen.getByLabelText(/telefone/i), '11999998888');
     await user.type(screen.getByLabelText(/email/i), 'existing@email.com');
     await user.type(screen.getByPlaceholderText(/mínimo 6 caracteres/i), 'password123');
     await user.type(screen.getByPlaceholderText(/repita a senha/i), 'password123');
@@ -117,6 +126,8 @@ describe('RegisterResidentPage', () => {
     renderRegisterPage();
 
     await user.type(screen.getByLabelText(/nome/i), 'João');
+    await user.type(screen.getByLabelText(/cpf/i), '12345678901');
+    await user.type(screen.getByLabelText(/telefone/i), '11999998888');
     await user.type(screen.getByLabelText(/email/i), 'joao@email.com');
     await user.type(screen.getByPlaceholderText(/mínimo 6 caracteres/i), 'password123');
     await user.type(screen.getByPlaceholderText(/repita a senha/i), 'password123');
@@ -128,7 +139,7 @@ describe('RegisterResidentPage', () => {
 
     resolveFetch!({
       ok: true,
-      json: async () => ({ token: 't', user: { id: '1', name: 'J', email: 'j@j.com', role: 'resident', points: 0, active: true } }),
+      json: async () => ({ token: 't', user: { id: '1', name: 'J', email: 'j@j.com', role: 'resident', points: 0, active: true }, company: null }),
     } as Response);
   });
 });

@@ -25,7 +25,7 @@ export function ResidentDashboard() {
         setStats(statsData);
         setRecentRequests(requestsData.slice(0, 5));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+        setError(err instanceof Error ? err.message : 'Falha ao carregar painel');
       } finally {
         setIsLoading(false);
       }
@@ -38,13 +38,13 @@ export function ResidentDashboard() {
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-500">Error: {error}</div>;
+    return <div className="text-center py-8 text-red-500">Erro: {error}</div>;
   }
 
   return (
     <div className="max-w-6xl mx-auto p-6">
       <FadeIn type="fade-down" duration={500}>
-        <h1 className="text-2xl font-bold mb-6">Welcome, {user?.name}</h1>
+        <h1 className="text-2xl font-bold mb-6">Bem-vindo, {user?.name}</h1>
       </FadeIn>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -52,7 +52,7 @@ export function ResidentDashboard() {
           <Card>
             <div className="text-center">
               <p className="text-3xl font-bold text-green-600">{stats?.totalRequests ?? 0}</p>
-              <p className="text-gray-500 mt-1">Total Requests</p>
+              <p className="text-gray-500 mt-1">Total Solicitações</p>
             </div>
           </Card>
         </FadeIn>
@@ -60,7 +60,7 @@ export function ResidentDashboard() {
           <Card>
             <div className="text-center">
               <p className="text-3xl font-bold text-green-600">{stats?.completedRequests ?? 0}</p>
-              <p className="text-gray-500 mt-1">Completed</p>
+              <p className="text-gray-500 mt-1">Concluídas</p>
             </div>
           </Card>
         </FadeIn>
@@ -68,7 +68,7 @@ export function ResidentDashboard() {
           <Card>
             <div className="text-center">
               <p className="text-3xl font-bold text-green-600">{stats?.points ?? 0}</p>
-              <p className="text-gray-500 mt-1">Points</p>
+              <p className="text-gray-500 mt-1">Pontos</p>
             </div>
           </Card>
         </FadeIn>
@@ -76,12 +76,12 @@ export function ResidentDashboard() {
 
       <FadeIn type="fade-up" duration={400} delay={150}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Recent Requests</h2>
+          <h2 className="text-lg font-semibold">Solicitações Recentes</h2>
           <Link
             to="/resident/requests/new"
             className="text-green-600 hover:text-green-700 font-medium transition-colors"
           >
-            + New Request
+            + Nova Solicitação
           </Link>
         </div>
       </FadeIn>
@@ -106,7 +106,7 @@ export function ResidentDashboard() {
           </FadeIn>
         ))}
         {recentRequests.length === 0 && (
-          <p className="text-center text-gray-500 py-8">No requests yet</p>
+          <p className="text-center text-gray-500 py-8">Nenhuma solicitação ainda</p>
         )}
       </div>
     </div>
