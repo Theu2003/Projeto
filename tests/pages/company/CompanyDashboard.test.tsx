@@ -53,7 +53,7 @@ describe('CompanyDashboard', () => {
   it('shows loading indicator initially', () => {
     vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
     render(<CompanyDashboard />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders company name and rating', async () => {

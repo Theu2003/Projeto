@@ -23,7 +23,7 @@ describe('ThemeContext', () => {
     document.documentElement.className = '';
 
     // Reset matchMedia mock to default (light mode)
-    matchMediaSpy = vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
+    matchMediaSpy = vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
       matches: false,
       media: query,
       onchange: null,
@@ -53,7 +53,7 @@ describe('ThemeContext', () => {
 
     it('should use system preference when no stored theme', () => {
       // Mock dark mode preference
-      matchMediaSpy.mockImplementation((query) => ({
+      matchMediaSpy.mockImplementation((query: string) => ({
         matches: query === '(prefers-color-scheme: dark)',
         media: query,
         onchange: null,

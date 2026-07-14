@@ -52,7 +52,7 @@ describe('AdminDashboard', () => {
   it('shows loading state initially', () => {
     mockGet.mockReturnValue(new Promise(() => {}));
     render(<AdminDashboard />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('displays platform statistics after loading', async () => {
@@ -94,7 +94,7 @@ describe('ManageUsersPage', () => {
   it('shows loading state initially', () => {
     mockGet.mockReturnValue(new Promise(() => {}));
     render(<ManageUsersPage />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('displays users after loading', async () => {
@@ -161,7 +161,7 @@ describe('ManageCompaniesPage', () => {
   it('shows loading state initially', () => {
     mockGet.mockReturnValue(new Promise(() => {}));
     render(<ManageCompaniesPage />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('displays companies after loading', async () => {
@@ -252,7 +252,7 @@ describe('ReportsPage', () => {
   it('shows loading state initially', () => {
     mockGet.mockReturnValue(new Promise(() => {}));
     render(<ReportsPage />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('displays reports after loading', async () => {

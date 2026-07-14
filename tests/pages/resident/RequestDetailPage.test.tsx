@@ -57,7 +57,7 @@ describe('RequestDetailPage', () => {
         <RequestDetailPage />
       </MemoryRouter>
     );
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders request details after loading', async () => {

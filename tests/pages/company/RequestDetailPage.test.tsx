@@ -42,7 +42,7 @@ describe('RequestDetailPage', () => {
   it('shows loading initially', () => {
     vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
     render(<RequestDetailPage />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders request details after load', async () => {

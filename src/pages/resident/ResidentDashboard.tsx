@@ -4,6 +4,8 @@ import { apiClient } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/Card';
 import { StatusBadge } from '@/components/StatusBadge';
+import { FadeIn } from '@/components/FadeIn';
+import { DashboardSkeleton } from '@/components/Skeleton';
 import { ResidentDashboardData, CollectionRequest } from '@/types';
 
 export function ResidentDashboard() {
@@ -32,7 +34,7 @@ export function ResidentDashboard() {
   }, []);
 
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-500">Loading...</div>;
+    return <DashboardSkeleton type="resident" />;
   }
 
   if (error) {
@@ -41,56 +43,67 @@ export function ResidentDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Welcome, {user?.name}</h1>
+      <FadeIn type="fade-down" duration={500}>
+        <h1 className="text-2xl font-bold mb-6">Welcome, {user?.name}</h1>
+      </FadeIn>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-green-600">{stats?.totalRequests ?? 0}</p>
-            <p className="text-gray-500 mt-1">Total Requests</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-green-600">{stats?.completedRequests ?? 0}</p>
-            <p className="text-gray-500 mt-1">Completed</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-green-600">{stats?.points ?? 0}</p>
-            <p className="text-gray-500 mt-1">Points</p>
-          </div>
-        </Card>
+        <FadeIn type="scale" duration={400} delay={100}>
+          <Card>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-green-600">{stats?.totalRequests ?? 0}</p>
+              <p className="text-gray-500 mt-1">Total Requests</p>
+            </div>
+          </Card>
+        </FadeIn>
+        <FadeIn type="scale" duration={400} delay={200}>
+          <Card>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-green-600">{stats?.completedRequests ?? 0}</p>
+              <p className="text-gray-500 mt-1">Completed</p>
+            </div>
+          </Card>
+        </FadeIn>
+        <FadeIn type="scale" duration={400} delay={300}>
+          <Card>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-green-600">{stats?.points ?? 0}</p>
+              <p className="text-gray-500 mt-1">Points</p>
+            </div>
+          </Card>
+        </FadeIn>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Recent Requests</h2>
-        <Link
-          to="/resident/requests/new"
-          className="text-green-600 hover:text-green-700 font-medium"
-        >
-          + New Request
-        </Link>
-      </div>
+      <FadeIn type="fade-up" duration={400} delay={150}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Recent Requests</h2>
+          <Link
+            to="/resident/requests/new"
+            className="text-green-600 hover:text-green-700 font-medium transition-colors"
+          >
+            + New Request
+          </Link>
+        </div>
+      </FadeIn>
 
       <div className="space-y-3">
-        {recentRequests.map((request) => (
-          <Link
-            key={request.id}
-            to={`/resident/requests/${request.id}`}
-            className="block"
-          >
-            <Card hoverable>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{request.materialType}</p>
-                  <p className="text-sm text-gray-500">{request.quantityKg} kg</p>
+        {recentRequests.map((request, index) => (
+          <FadeIn key={request.id} type="fade-up" duration={350} delay={200 + index * 80}>
+            <Link
+              to={`/resident/requests/${request.id}`}
+              className="block"
+            >
+              <Card hoverable>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{request.materialType}</p>
+                    <p className="text-sm text-gray-500">{request.quantityKg} kg</p>
+                  </div>
+                  <StatusBadge status={request.status} />
                 </div>
-                <StatusBadge status={request.status} />
-              </div>
-            </Card>
-          </Link>
+              </Card>
+            </Link>
+          </FadeIn>
         ))}
         {recentRequests.length === 0 && (
           <p className="text-center text-gray-500 py-8">No requests yet</p>

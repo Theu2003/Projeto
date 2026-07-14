@@ -33,7 +33,7 @@ describe('API Client', () => {
 
   describe('Base URL Configuration', () => {
     it('should have default base URL', () => {
-      expect(apiClient.getBaseUrl()).toBe('http://localhost:3000/api');
+      expect(apiClient.getBaseUrl()).toBe('http://localhost:3001/api');
     });
   });
 

@@ -26,7 +26,9 @@ export function DataTable<T extends { id: string }>({
   className,
   caption,
 }: DataTableProps<T>) {
-  if (data.length === 0 && emptyMessage) {
+  const isEmpty = data.length === 0;
+
+  if (isEmpty && emptyMessage) {
     return <p className="text-gray-500 dark:text-gray-400 text-center py-8">{emptyMessage}</p>;
   }
 
@@ -51,34 +53,36 @@ export function DataTable<T extends { id: string }>({
             )}
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-          {data.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              {columns.map((col) => (
-                <td key={col.key} className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                  {col.render ? col.render(row) : String(row[col.key] ?? '')}
-                </td>
-              ))}
-              {actions && actions.length > 0 && (
-                <td className="px-4 py-3 text-sm space-x-2">
-                  {actions.map((action, idx) => {
-                    const label = typeof action.label === 'function' ? action.label(row) : action.label;
-                    if (!label) return null;
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => action.onClick(row)}
-                        className="text-green-600 dark:text-green-400 hover:underline"
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
+        {!isEmpty && (
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            {data.map((row) => (
+              <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                {columns.map((col) => (
+                  <td key={col.key} className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                    {col.render ? col.render(row) : String(row[col.key] ?? '')}
+                  </td>
+                ))}
+                {actions && actions.length > 0 && (
+                  <td className="px-4 py-3 text-sm space-x-2">
+                    {actions.map((action, idx) => {
+                      const label = typeof action.label === 'function' ? action.label(row) : action.label;
+                      if (!label) return null;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => action.onClick(row)}
+                          className="text-green-600 dark:text-green-400 hover:underline"
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        )}
       </table>
     </div>
   );

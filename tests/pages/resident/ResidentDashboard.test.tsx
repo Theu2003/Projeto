@@ -53,7 +53,7 @@ describe('ResidentDashboard', () => {
         <ResidentDashboard />
       </MemoryRouter>
     );
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders dashboard stats after loading', async () => {

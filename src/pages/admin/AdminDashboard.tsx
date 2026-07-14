@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/services/api';
+import { FadeIn } from '@/components/FadeIn';
+import { DashboardSkeleton } from '@/components/Skeleton';
 import { AdminStats } from '@/types';
 
 function formatNumber(n: number): string {
@@ -20,7 +22,7 @@ export function AdminDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>;
+    return <DashboardSkeleton type="admin" />;
   }
 
   if (error) {
@@ -42,20 +44,22 @@ export function AdminDashboard() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-        Platform Statistics
-      </h2>
+      <FadeIn type="fade-down" duration={500}>
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          Platform Statistics
+        </h2>
+      </FadeIn>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map((card) => (
-          <div
-            key={card.label}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700"
-          >
-            <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {formatNumber(card.value)}
-            </p>
-          </div>
+        {cards.map((card, index) => (
+          <FadeIn key={card.label} type="scale" duration={400} delay={index * 80}>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400">{card.label}</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {formatNumber(card.value)}
+              </p>
+            </div>
+          </FadeIn>
         ))}
       </div>
     </div>

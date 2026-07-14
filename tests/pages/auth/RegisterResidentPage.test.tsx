@@ -74,7 +74,7 @@ describe('RegisterResidentPage', () => {
     await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/auth/register/resident',
+      'http://localhost:3001/api/auth/register/resident',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({

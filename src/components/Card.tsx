@@ -19,8 +19,10 @@ export function Card({
 }: CardProps) {
   return (
     <div
-      className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 transition-shadow ${
-        hoverable ? 'hover:shadow-lg cursor-pointer' : ''
+      className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 transition-all duration-300 ${
+        hoverable
+          ? 'hover:shadow-lg hover:-translate-y-1 hover:border-green-500/30 cursor-pointer active:scale-[0.98]'
+          : ''
       } ${className}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}

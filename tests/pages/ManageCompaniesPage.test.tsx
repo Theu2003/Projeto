@@ -25,7 +25,7 @@ describe('ManageCompaniesPage', () => {
   it('shows loading indicator initially', () => {
     vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
     render(<ManageCompaniesPage />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders company list after data loads', async () => {

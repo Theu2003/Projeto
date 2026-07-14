@@ -67,7 +67,7 @@ describe('RegisterCompanyPage', () => {
     await user.click(screen.getByRole('button', { name: /cadastrar empresa/i }));
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/auth/register/company',
+      'http://localhost:3001/api/auth/register/company',
       expect.objectContaining({
         method: 'POST',
       })

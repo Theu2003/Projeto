@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/services/api';
+import { ReportsSkeleton } from '@/components/Skeleton';
 import { MonthlyReport } from '@/types';
 
 function formatMonth(monthStr: string): string {
@@ -22,7 +23,7 @@ export function ReportsPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>;
+    return <ReportsSkeleton />;
   }
 
   if (error) {

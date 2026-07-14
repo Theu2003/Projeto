@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { apiClient } from '@/services/api';
+import { FormSkeleton } from '@/components/Skeleton';
 import { CollectionRequest } from '@/types';
 import { Input } from '@/components/Input';
 
@@ -51,7 +52,7 @@ export function CollectionProcessPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>;
+    return <FormSkeleton />;
   }
 
   if (error) {

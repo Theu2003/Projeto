@@ -33,7 +33,7 @@ describe('ResidentDashboard', () => {
   it('shows loading state initially', () => {
     mockGet.mockReturnValue(new Promise(() => {})); // never resolves
     renderWithProviders(<ResidentDashboard />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders dashboard stats after loading', async () => {

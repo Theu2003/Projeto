@@ -12,7 +12,8 @@ export function useNotifications() {
   }, []);
 
   useEffect(() => {
-    function handleNewNotification(notification: Notification) {
+    function handleNewNotification(...args: unknown[]) {
+      const notification = args[0] as Notification;
       setNotifications((prev) => [notification, ...prev]);
     }
 

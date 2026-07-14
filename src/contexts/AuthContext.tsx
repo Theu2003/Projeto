@@ -1,15 +1,16 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { apiClient } from '@/services/api';
-import { User, Company, AuthResponse, LoginRequest, RegisterCompanyRequest } from '@/types';
+import { User, Company, AuthResponse, LoginRequest, RegisterRequest, RegisterCompanyRequest } from '@/types';
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   company: Company | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: LoginRequest) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<void>;
   registerCompany: (data: RegisterCompanyRequest) => Promise<void>;
   logout: () => void;
   clearError: () => void;
@@ -50,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
       apiClient.setToken(response.token);
-      setUser(response.user);
+      setUser(response.user as User);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
       throw err;
@@ -59,7 +60,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function register(data: LoginRequest) {
+  async function googleLogin(credential: string) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/google', { credential });
+      apiClient.setToken(response.token);
+      setUser(response.user as User);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google login failed');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function register(data: RegisterRequest) {
     setIsLoading(true);
     setError(null);
     try {
@@ -108,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         error,
         login,
+        googleLogin,
         register,
         registerCompany,
         logout,

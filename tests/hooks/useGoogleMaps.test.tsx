@@ -26,12 +26,19 @@ describe('useGoogleMaps', () => {
   });
 
   it('returns location on successful geolocation', async () => {
-    const mockPosition = {
+    const mockPosition: GeolocationPosition = {
       coords: {
         latitude: -23.5505,
         longitude: -46.6333,
         accuracy: 10,
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+        toJSON: () => ({}),
       },
+      timestamp: Date.now(),
+      toJSON: () => JSON.parse(JSON.stringify(mockPosition)),
     };
     mockGeolocation.getCurrentPosition.mockImplementation((success: PositionCallback) => {
       success(mockPosition);
@@ -70,7 +77,6 @@ describe('useGoogleMaps', () => {
   it('sets error when geolocation is not supported', async () => {
     // Temporarily remove geolocation
     const original = navigator.geolocation;
-    // @ts-expect-error testing unsupported case
     Object.defineProperty(navigator, 'geolocation', { value: undefined, writable: true });
 
     const { result } = renderHook(() => useGoogleMaps());

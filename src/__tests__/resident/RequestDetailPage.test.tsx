@@ -60,7 +60,7 @@ describe('RequestDetailPage', () => {
   it('shows loading state', () => {
     mockGet.mockReturnValue(new Promise(() => {}));
     renderWithProviders(<RequestDetailPage />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('displays request details after loading', async () => {

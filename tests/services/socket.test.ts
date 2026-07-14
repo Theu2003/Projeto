@@ -13,7 +13,7 @@ const mockSocket = {
 const mockIo = vi.fn(() => mockSocket);
 
 vi.mock('socket.io-client', () => ({
-  io: (...args: unknown[]) => mockIo(...args),
+  io: (...args: Parameters<typeof mockIo>) => mockIo(...args),
 }));
 
 import { getSocket, disconnectSocket } from '@/services/socket';

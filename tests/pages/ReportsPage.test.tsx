@@ -24,7 +24,7 @@ describe('ReportsPage', () => {
   it('shows loading indicator initially', () => {
     vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
     render(<ReportsPage />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders report page title after data loads', async () => {

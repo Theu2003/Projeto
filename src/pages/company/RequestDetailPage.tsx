@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiClient } from '@/services/api';
+import { CompanyRequestDetailSkeleton } from '@/components/Skeleton';
 import { CollectionRequest } from '@/types';
 
 const statusColors: Record<string, string> = {
@@ -52,7 +53,7 @@ export function RequestDetailPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>;
+    return <CompanyRequestDetailSkeleton />;
   }
 
   if (error) {

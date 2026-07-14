@@ -47,7 +47,7 @@ describe('CollectionProcessPage', () => {
   it('shows loading initially', () => {
     vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
     render(<CollectionProcessPage />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders collection flow for accepted request', async () => {

@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Polyfill localStorage for jsdom
 const storageMock = (() => {
@@ -23,6 +23,35 @@ const storageMock = (() => {
 
 Object.defineProperty(globalThis, 'localStorage', {
   value: storageMock,
+  writable: true,
+});
+
+// Mock IntersectionObserver for jsdom tests
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | Document | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [0];
+
+  constructor(
+    private callback: IntersectionObserverCallback,
+    private options?: IntersectionObserverInit
+  ) {}
+
+  observe(target: Element): void {
+    // Immediately trigger with intersecting=true for testing
+    this.callback(
+      [{ isIntersecting: true, target } as IntersectionObserverEntry],
+      this
+    );
+  }
+
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] { return []; }
+}
+
+Object.defineProperty(globalThis, 'IntersectionObserver', {
+  value: MockIntersectionObserver,
   writable: true,
 });
 

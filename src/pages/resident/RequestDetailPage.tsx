@@ -6,6 +6,7 @@ import { Button } from '@/components/Button';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Timeline } from '@/components/Timeline';
 import { StarRating } from '@/components/StarRating';
+import { RequestDetailSkeleton } from '@/components/Skeleton';
 import { CollectionRequest, RequestStatus } from '@/types';
 
 const statusToTimelineStep: Record<RequestStatus, string> = {
@@ -82,7 +83,7 @@ export function RequestDetailPage() {
     }
   }
 
-  if (isLoading) return <div className="text-center py-8 text-gray-500">Loading...</div>;
+  if (isLoading) return <RequestDetailSkeleton />;
   if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
   if (!request) return <div className="text-center py-8 text-gray-500">Request not found</div>;
 

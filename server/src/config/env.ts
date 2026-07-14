@@ -15,4 +15,5 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
 };

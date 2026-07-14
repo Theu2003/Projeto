@@ -28,7 +28,7 @@ describe('AdminDashboard', () => {
   it('shows loading indicator initially', () => {
     vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
     render(<AdminDashboard />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders platform stats after data loads', async () => {

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/services/api';
 import { Company } from '@/types';
 import { DataTable, Column, DataTableAction } from '@/components/DataTable';
+import { TableSkeleton } from '@/components/Skeleton';
 
 export function ManageCompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -77,7 +78,7 @@ export function ManageCompaniesPage() {
   ];
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>;
+    return <TableSkeleton rows={8} />;
   }
 
   if (error) {

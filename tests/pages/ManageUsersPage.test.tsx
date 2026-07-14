@@ -25,7 +25,7 @@ describe('ManageUsersPage', () => {
   it('shows loading indicator initially', () => {
     vi.mocked(apiClient.get).mockImplementation(() => new Promise(() => {}));
     render(<ManageUsersPage />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading content')).toBeInTheDocument();
   });
 
   it('renders user list after data loads', async () => {

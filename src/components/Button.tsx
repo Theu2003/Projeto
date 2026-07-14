@@ -9,6 +9,7 @@ interface ButtonBaseProps {
   size?: ButtonSize;
   isLoading?: boolean;
   fullWidth?: boolean;
+  disabled?: boolean;
 }
 
 type ButtonAsButton = ButtonBaseProps &
@@ -49,12 +50,16 @@ export function Button({
   href,
   ...props
 }: ButtonProps) {
+  const isDisabled = disabled || isLoading;
+
   const classes = [
-    'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
+    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
     variantStyles[variant],
     sizeStyles[size],
     fullWidth ? 'w-full' : '',
-    disabled || isLoading ? 'opacity-50 cursor-not-allowed' : '',
+    isDisabled
+      ? 'opacity-50 cursor-not-allowed'
+      : 'active:scale-95 hover:scale-[1.02]',
     className,
   ]
     .filter(Boolean)
@@ -63,6 +68,7 @@ export function Button({
   if (href) {
     return (
       <a href={href} className={classes} {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}>
+        {isLoading && <LoadingSpinner />}
         {children}
       </a>
     );
@@ -71,22 +77,30 @@ export function Button({
   return (
     <button
       className={classes}
-      disabled={disabled || isLoading}
+      disabled={isDisabled}
       {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}
     >
-      {isLoading && (
-        <svg
-          className="animate-spin -ml-1 mr-2 h-4 w-4"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
-      )}
+      {isLoading && <LoadingSpinner />}
       {children}
     </button>
+  );
+}
+
+function LoadingSpinner() {
+  return (
+    <svg
+      className="animate-spin -ml-1 mr-2 h-4 w-4"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
   );
 }

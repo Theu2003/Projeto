@@ -1,9 +1,11 @@
+import crypto from 'crypto';
 import { PrismaClient, User, Company } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import { config } from '@/config/env';
 import { AppError } from '@/middleware/errorHandler';
-import { RegisterResidentInput, RegisterCompanyInput, LoginInput } from './auth.validation';
+import { RegisterResidentInput, RegisterCompanyInput, LoginInput, GoogleLoginInput } from './auth.validation';
 
 const prisma = new PrismaClient();
 
@@ -127,6 +129,60 @@ export async function login(data: LoginInput): Promise<AuthResult> {
   }
 
   throw new AppError('Invalid credentials', 401);
+}
+
+const googleClient = new OAuth2Client(config.googleClientId);
+
+export async function googleLogin(data: GoogleLoginInput): Promise<AuthResult> {
+  if (!config.googleClientId) {
+    throw new AppError('Google authentication is not configured', 500);
+  }
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: data.credential,
+      audience: config.googleClientId,
+    });
+    payload = ticket.getPayload();
+  } catch (error) {
+    throw new AppError('Invalid Google credential', 401);
+  }
+
+  if (!payload || !payload.email) {
+    throw new AppError('Invalid Google credential: email not found', 401);
+  }
+
+  const googleId = payload.sub;
+  const email = payload.email;
+  const name = payload.name || email.split('@')[0];
+
+  // Try to find existing user by email
+  let user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) {
+    // Create a new user account via Google OAuth
+    // Generate a random password since the user won't use password login
+    const randomPassword = crypto.randomUUID();
+    const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+    user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        cpf: `google_${googleId}`.slice(0, 11).padEnd(11, '0'),
+        phone: '(00) 00000-0000',
+        passwordHash,
+        role: 'resident',
+      },
+    });
+  }
+
+  const tokens = generateTokens(user.id, user.role);
+  return {
+    user: excludePassword(user),
+    ...tokens,
+  };
 }
 
 export async function refreshToken(token: string): Promise<{ token: string; refreshToken: string }> {
