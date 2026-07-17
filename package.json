@@ -12,7 +12,6 @@
     "dev:server": "npm run dev --workspace=server",
     "dev:electron": "electron-vite dev",
     "dev:client": "electron-vite dev --renderer-only",
-    "build:web": "vite build",
     "build": "electron-vite build && npm run build --workspace=server",
     "preview": "electron-vite preview",
     "test": "npm run test --workspace=server",

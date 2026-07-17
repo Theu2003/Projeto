@@ -1,11 +1,7 @@
 import { prisma } from '@/config/database';
 import { AppError } from '@/middleware/errorHandler';
 import { UpdateUserInput } from './user.validation';
-
-function excludePassword<T extends { passwordHash: string }>(obj: T): Omit<T, 'passwordHash'> {
-  const { passwordHash, ...rest } = obj;
-  return rest;
-}
+import { excludePassword } from '@/utils/password';
 
 /**
  * Retorna perfil do usuário logado (morador ou empresa)

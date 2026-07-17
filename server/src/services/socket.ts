@@ -48,22 +48,8 @@ export function initializeSocket(socketServer: SocketIOServer): void {
       socket.join(`user:${userId}`);
     }
 
-    console.log(`🔌 Cliente conectado: ${socket.id} (${role}: ${userId})`);
-
-    socket.on('disconnect', () => {
-      console.log(`🔌 Cliente desconectado: ${socket.id}`);
-    });
+    socket.on('disconnect', () => {});
   });
-}
-
-/**
- * Retorna a instância do Socket.IO
- */
-export function getIO(): SocketIOServer {
-  if (!io) {
-    throw new Error('Socket.IO não inicializado');
-  }
-  return io;
 }
 
 /**

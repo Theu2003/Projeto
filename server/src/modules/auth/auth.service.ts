@@ -15,6 +15,7 @@ import {
   VerifyResetCodeInput,
   ResetPasswordInput,
 } from './auth.validation';
+import { excludePassword } from '@/utils/password';
 
 const googleClient = new OAuth2Client(config.googleClientId);
 
@@ -26,11 +27,6 @@ function generateTokens(userId: string, role: string) {
   const token = jwt.sign({ userId, role }, config.jwtSecret, { expiresIn: '7d' });
   const refreshToken = jwt.sign({ userId, role, type: 'refresh' }, config.jwtSecret, { expiresIn: '30d' });
   return { token, refreshToken };
-}
-
-function excludePassword<T extends { passwordHash: string }>(obj: T): Omit<T, 'passwordHash'> {
-  const { passwordHash, ...rest } = obj;
-  return rest;
 }
 
 // ============================================================

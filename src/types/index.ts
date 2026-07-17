@@ -36,11 +36,6 @@ export interface AuthResponse {
   company: Company | null;
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -143,16 +138,6 @@ export interface ResidentDashboardData {
   completedRequests: number;
   pendingRequests: number;
   points: number;
-}
-
-export interface CreateRequestPayload {
-  materialType: string;
-  quantityKg: number;
-  observations?: string;
-  desiredDate?: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
 }
 
 export interface CompanyDashboardData {

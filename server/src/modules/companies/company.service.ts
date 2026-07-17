@@ -2,11 +2,7 @@ import { prisma } from '@/config/database';
 import { AppError } from '@/middleware/errorHandler';
 import { UpdateCompanyInput } from './company.validation';
 import { haversineDistance } from '@/utils/distance';
-
-function excludePassword<T extends { passwordHash: string }>(obj: T): Omit<T, 'passwordHash'> {
-  const { passwordHash, ...rest } = obj;
-  return rest;
-}
+import { excludePassword } from '@/utils/password';
 
 /**
  * Retorna perfil da empresa logada

@@ -48,7 +48,6 @@ export const resetPasswordSchema = z.object({
 export type RegisterResidentInput = z.infer<typeof registerResidentSchema>;
 export type RegisterCompanyInput = z.infer<typeof registerCompanySchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
-export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
 export type GoogleLoginInput = z.infer<typeof googleLoginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>;

@@ -29,7 +29,6 @@ model User {
   requests      CollectionRequest[] @relation("UserRequests")
   reviews       Review[]
   notifications Notification[]      @relation("UserNotifications")
-  addresses     Address[]
 
   @@map("users")
 }
@@ -59,7 +58,6 @@ model Company {
   requests      CollectionRequest[] @relation("CompanyRequests")
   reviews       Review[]
   notifications Notification[]      @relation("CompanyNotifications")
-  addresses     Address[]
 
   @@map("companies")
 }
@@ -135,26 +133,4 @@ model Notification {
   company Company? @relation("CompanyNotifications", fields: [companyId], references: [id])
 
   @@map("notifications")
-}
-
-/// Endereço (suporte a múltiplos endereços por usuário/empresa)
-model Address {
-  id           String  @id @default(cuid())
-  userId       String?
-  companyId    String?
-  label        String
-  street       String
-  number       String
-  neighborhood String
-  city         String
-  state        String
-  zipCode      String
-  latitude     Float?
-  longitude    Float?
-  isDefault    Boolean @default(false)
-
-  user    User?    @relation(fields: [userId], references: [id])
-  company Company? @relation(fields: [companyId], references: [id])
-
-  @@map("addresses")
 }

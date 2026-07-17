@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { apiClient } from '@/services/api';
 import { CompanyRequestDetailSkeleton } from '@/components/Skeleton';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -7,7 +7,6 @@ import { CollectionRequest } from '@/types';
 
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [request, setRequest] = useState<CollectionRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
